@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: free5gmano-deployment
+spec:
+  selector:
+    matchLabels:
+      app: free5gmano
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: free5gmano
+    spec:
+      containers:
+        - name: free5gmano
+          image: free5gmano/free5gmano
+          imagePullPolicy: Always
+          env:
+            - name: FREE5GMANO_MYSQL_USER
+              value: "root"
+            - name: FREE5GMANO_MYSQL_PASSWORD
+              value: "password"
+            - name: FREE5GMANO_MYSQL_HOST
+              value: "10.0.0.232"
+            - name: FREE5GMANO_MYSQL_PORT
+              value: "30306"
+            - name: FREE5GMANO_NM
+              value: "127.0.0.1:30088"
+            - name: FREE5GMANO_NFVO
+              value: "127.0.0.1:30888"
+          volumeMounts:
+            - name: free5gmano-persistent-storage
+              mountPath: /data/nm/
+      volumes:
+        - name: free5gmano-persistent-storage
+          persistentVolumeClaim:
+            claimName: free5gmano-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: free5gmano-svc
+spec:
+  type: NodePort
+  ports:
+    - port: 8000
+      nodePort: 30088
+  selector:
+    app: free5gmano
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: free5gmano-pv-volume
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: free5gmano-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi

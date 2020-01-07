@@ -1,0 +1,32 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+topology_template:
+  node_templates:
+    NS1:
+      type: tosca.nodes.nfv.NS
+      properties:
+        descriptor_id: b1bb0ce7-ebca-4fa7-95ed-4840d70a1179
+        designer: IMAC
+        name: ExampleService
+        invariant_id: 1111-2222-aaaa-bbbb
+        version: '1.0'
+        constituent_vnfd:
+          - mongodb
+          - amf
+          - smf
+          - upf
+          - hss
+          - pcrf
+          - webui
+#          - ubuntu-vm
+#          vnffgd:
+#            id: 1
+#            rsp:
+#              - forwarder: amf
+#                capability: CP1
+#              - forwarder: smf
+#                capability: CP1
+#            classifier:
+#              -
+
+

@@ -1,0 +1,34 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+topology_template:
+  node_templates:
+    VDU1:
+      type: tosca.nodes.nfv.Vdu.Compute
+      properties:
+        namespace: default
+        replicas: 1
+        image: free5gmano/free5gc-base:latest
+      capabilities:
+        virtual_compute:
+          properties:
+            virtual_memory:
+              virtual_mem_size: 64Mi
+            virtual_cpu:
+              num_virtual_cpu: 250m
+      attributes:
+        command: sh, -c, /root/free5gc/install/bin/nextepc-hssd
+        env:
+          - name: DB_URI
+            value: mongodb://mongodb-svc/free5gc
+        config_path: /root/free5gc/install/etc/free5gc/free5gc.conf, /root/free5gc/install/etc/free5gc/freeDiameter/hss.conf
+
+    CP1:
+      type: tosca.nodes.nfv.VduCpd
+      properties:
+        address_data:
+          l2_address_data:
+            cidr:
+              - 192.168.2.4/24
+      requirements:
+        virtual_binding:
+          node: VDU1

@@ -1,0 +1,11 @@
+PyYAML
+pprint
+jsonschema
+Django==2.2
+djangorestframework==3.10.1
+pytz==2019.1
+sqlparse==0.3.0
+requests==2.21.0
+# pymysql #for windows
+django-mysql
+mysqlclient #for linux

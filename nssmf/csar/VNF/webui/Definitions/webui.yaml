@@ -1,0 +1,23 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+topology_template:
+  node_templates:
+    VDU1:
+      type: tosca.nodes.nfv.Vdu.Compute
+      properties:
+        namespace: default
+        replicas: 1
+        image: free5gmano/free5gc-webui:latest
+      capabilities:
+        virtual_compute:
+          properties:
+            virtual_memory:
+              virtual_mem_size: 500Mi
+            virtual_cpu:
+              num_virtual_cpu: "1"
+      attributes:
+        ports: 3000
+        is_export_service: "True"
+        name_of_service: webui
+
+
