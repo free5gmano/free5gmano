@@ -1,14 +1,45 @@
-# free5gmano
+# free5gmano NM manager
+![](https://i.imgur.com/siaTpV7.png)
+## Table of Contents
+- [free5gmano](#What-is-free5gmano?)
+- [Features](#Features)
+- [Dependencies](#Dependencies)
+- [Getting started](#Getting-started)
+  - [Install NFV-MANO](#Install-NFV-MANO)
+  - [Install NM](#Install-NM)
+- [Apply a NSSI (Network Slice Subnet Instance)](#Apply-a-NSSI-(Network-Slice-Subnet-Instance))
+  - [Install the nmctl client](#Install-the-nmctl-client)
+- [Release Note](#Release-Note)
+
+## What is free5gmano?
+This is a 5G MANO (Management and Network Orchestration) project developed that refer to 3GPP TS 28.531, TS 28.532 Release 15 (R15). The purpose is to achieve the management and scheduling of 5G network slices. Please refer to [Features](#Features) for the functions of release.
+This project is collaborating with [free5GC.org](https://free5gc.org). Hence, it can provide as a MANO platform for deploying network slice subnet instances (NSSIs) of free5GC VNFs. 
+
+Currently, the major contributors of this project are Department of Computer Science and Information Engineering (Dept. of CSIE) and Center of Infomormation Technology Innovation Services (CITIS), National Taichung University of Science and Technology (NTCUST)
+
+Note:
+Thank you very much for your interest in free5gmano. The license of Stage 2 free5gmano follows [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0). That is, anyone can use free5gmano for commercial purposes for free. We will not charge any license fee.
+
+This project is initiated by:
+[![](https://i.imgur.com/7HU6PZu.png)](https://www.moea.gov.tw/)[![](https://i.imgur.com/kNImVoF.png)](https://www.edu.tw/)
+## Architecture
+![](https://i.imgur.com/xURxQ14.png)
+It's refer to [ETSI GS NFV-MAN 001 V1.1.1](https://www.etsi.org/deliver/etsi_gs/NFV-MAN/001_099/001/01.01.01_60/gs_NFV-MAN001v010101p.pdf)
+
+## Features
+* AllocationNssi API is implemented in Network Slice Subnet Management Function that refer to 3GPP TS 28.531 (R15). It can create a Network Slice Subnet Instance (NSSI) by calling os-ma-nfvo interface, which is the basis of network slicing.
+* A Service Mapping Plugin framework is designed to deploy the Network Slice Subnet Instance (NSSI) via os-ma-nfvo APIs and provide the selection of the open source NFV Orchestrators, e.g. Kubernetes-based [Kube5gnfvo](https://github.com/free5gmano/kube5gnfvo) (default), [OpenStack-based Tacker](https://wiki.openstack.org/wiki/Tacker) etc.
+* Network Slice Subnet Template can assist users to provide ETSI MANO NFVO required information, e.g. VNF Package, Network Service Descriptor
+
 ## Dependencies
 The following packages are required:
-
 * git
 * python3
 * pip3
 * mysql
 * NFV-MANO
 
-## Installation Guide
+## Getting started
 ### Install NFV-MANO
 #### Option1 - install kube5gnfvo
 Please refer to [kube5gnfvo](https://github.com/free5gmano/kube5gnfvo) Installation Guide to install kube5gnfvo.
@@ -32,8 +63,8 @@ sudo alias pip=pip3
 
 3. Clone nm_manager project
 ```
-git clone https://github.com/free5gmano/nm_manager.git
-cd nm_manager
+git clone https://github.com/free5gmano/free5gmano.git
+cd free5gmano
 ```
 
 4. Install python dependencies
@@ -115,5 +146,18 @@ NSST Id:: 66ff6b6f-6c54-4498-bc1e-411382c80bc5
 nmctl allocate nssi 66ff6b6f-6c54-4498-bc1e-411382c80bc5
 ```
 
+## Contributors
+:::info
+**National Taichung University of Science and Technology:** Cheng-En Wu, Sheng-Tang Hsu, Yi-Chieh Hsu, Wen-Sheng Li, Meng-Ze Li, Yi-Xin Lin, Hung-Ming Chen, Yung-Feng Lu
+:::
+
 ## Release Note
 Allocate a Network Slice Subnet Instance(NSSI) and deploy [free5GC v1.0.0](https://bitbucket.org/nctu_5g/free5gc-stage-1/src/master/)
+
+:::warning
+&copy;Copyright January 2020
+All rights reserved.
+
+Contact:
+free5gmano@gmail.com
+:::
