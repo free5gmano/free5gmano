@@ -1,0 +1,32 @@
+apiVersion: v1
+data:
+  hss.conf: |
+    db_uri: mongodb://mongodb-svc/free5gc
+
+    logger:
+        file: /root/free5gc/install/var/log/free5gc/hss.log
+        trace:
+            app: 1
+            diameter: 1
+
+    parameter:
+
+    hss:
+        freeDiameter: hss.conf
+  pcrf.conf: |
+
+    db_uri: mongodb://mongodb-svc/free5gc
+
+    logger:
+        file: /root/free5gc/install/var/log/free5gc/pcrf.log
+        trace:
+            app: 1
+            diameter: 1
+
+    parameter:
+
+    pcrf:
+        freeDiameter: pcrf.conf
+kind: ConfigMap
+metadata:
+  name: nextepc-configmap
