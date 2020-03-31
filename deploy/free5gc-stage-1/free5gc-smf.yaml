@@ -1,0 +1,42 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: free5gc-smf-deployment
+  labels:
+    interface: "true" 
+spec:
+  selector:
+    matchLabels:
+      app: free5gc-smf
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: free5gc-smf
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/free5gc-base
+        imagePullPolicy: Always
+        command: ["/bin/sh"]
+        args: ["-c", "/root/free5gc/free5gc-smfd"]
+        volumeMounts:
+        - name: free5gc-config
+          mountPath: /root/free5gc/install/etc/free5gc/free5gc.conf
+          subPath: free5gc.conf
+        - name: free5gc-freediameter-config
+          mountPath: /root/free5gc/install/etc/free5gc/freeDiameter/smf.conf
+          subPath: smf.conf
+      volumes:
+      - name: free5gc-config
+        configMap:
+          name: free5gc-configmap
+          items: 
+          - key: free5gc.conf
+            path: free5gc.conf
+      - name: free5gc-freediameter-config
+        configMap:
+          name: free5gc-freediameter-configmap
+          items:
+          - key: smf.conf
+            path: smf.conf

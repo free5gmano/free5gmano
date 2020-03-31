@@ -1,0 +1,51 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: nextepc-hss-deployment
+  labels:
+    interface: "true" 
+spec:
+  selector:
+    matchLabels:
+      app: nextepc-hss
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nextepc-hss
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/free5gc-base
+        imagePullPolicy: Always
+        command: ["/bin/sh"]
+        args: ["-c", "/root/free5gc/nextepc-hssd"]
+        volumeMounts:
+        - name: free5gc-config
+          mountPath: /root/free5gc/install/etc/free5gc/free5gc.conf
+          subPath: free5gc.conf
+        - name: nextepc-config
+          mountPath: /root/free5gc/install/etc/free5gc/hss.conf
+          subPath: hss.conf
+        - name: nextepc-freediameter-config
+          mountPath: /root/free5gc/install/etc/free5gc/freeDiameter/hss.conf
+          subPath: hss.conf
+      volumes:
+      - name: free5gc-config
+        configMap:
+          name: free5gc-configmap
+          items:
+          - key: free5gc.conf
+            path: free5gc.conf
+      - name: nextepc-config
+        configMap:
+          name: nextepc-configmap
+          items: 
+          - key: hss.conf
+            path: hss.conf
+      - name: nextepc-freediameter-config
+        configMap:
+          name: nextepc-freediameter-configmap
+          items:
+          - key: hss.conf
+            path: hss.conf

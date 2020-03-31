@@ -1,0 +1,32 @@
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: free5gc-webui
+spec:
+  selector:
+    matchLabels:
+      app: free5gc-webui
+  replicas: 1 # tells deployment to run 2 pods matching the template
+  template:
+    metadata:
+      labels:
+        app: free5gc-webui
+    spec:
+      containers:
+      - name: free5gc-webui
+        image: free5gmano/free5gc-webui
+        ports:
+        - containerPort: 3000
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: free5gc-webui-service
+spec:
+  selector:
+    app: free5gc-webui
+  ports:
+  - protocol: TCP
+    port: 3000
+    nodePort: 31111
+  type: NodePort

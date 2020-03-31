@@ -145,19 +145,21 @@ NSST Id:: 66ff6b6f-6c54-4498-bc1e-411382c80bc5
 ```
 nmctl allocate nssi 66ff6b6f-6c54-4498-bc1e-411382c80bc5
 ```
+## Docker Repository
+[free5gmano](https://hub.docker.com/repository/docker/free5gmano/free5gmano)
+[free5gc-stage-1](https://hub.docker.com/repository/docker/free5gmano/free5gc-base)
+[free5gc-stage-2(control plane)](https://hub.docker.com/repository/docker/free5gmano/free5gc-control-plane)
+[free5gc-stage-2(user plane)](https://hub.docker.com/repository/docker/free5gmano/free5gc-user-plane)
 
 ## Contributors
-:::info
 **National Taichung University of Science and Technology:** Cheng-En Wu, Sheng-Tang Hsu, Yi-Chieh Hsu, Wen-Sheng Li, Meng-Ze Li, Yi-Xin Lin, Hung-Ming Chen, Yung-Feng Lu
-:::
 
 ## Release Note
-Allocate a Network Slice Subnet Instance(NSSI) and deploy [free5GC v1.0.0](https://bitbucket.org/nctu_5g/free5gc-stage-1/src/master/)
+* Allocate a Network Slice Subnet Instance(NSSI) and deploy [free5GC](https://www.free5gc.org/)
 
-:::warning
+
 &copy;Copyright January 2020
 All rights reserved.
 
 Contact:
 free5gmano@gmail.com
-:::

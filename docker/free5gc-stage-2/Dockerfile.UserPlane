@@ -1,0 +1,17 @@
+FROM golang:1.12.9
+
+WORKDIR /root/
+
+RUN apt update -y
+RUN apt -y install git wget gcc cmake autoconf libtool pkg-config libmnl-dev libyaml-dev
+
+WORKDIR $GOPATH/src
+RUN git clone https://github.com/free5gc/free5gc-stage-2.git free5gc
+
+WORKDIR $GOPATH/src/free5gc
+RUN go get -u github.com/sirupsen/logrus
+RUN mkdir -p $GOPATH/src/free5gc/src/upf/build
+
+WORKDIR $GOPATH/src/free5gc/src/upf/build
+RUN cmake ..
+RUN make -j `nproc`
