@@ -1,8 +1,7 @@
-TOSCA-Meta-File-Version: 1.0
+TOSCA-Meta-File-Version: 1.2
 CSAR-Version: 1.1
-Created-By: IMAC
+Created-By: imac
 Entry-Definitions: Definitions/smf.yaml
 ETSI-Entry-Manifest: free5gc-smf.mf
 ETSI-Entry-Change-Log: Files/ChangeLog.txt
 ETSI-Entry-Licenses: Files/Licenses
-ETSI-Entry-Artifacts: Files/Artifacts/smf.conf, Files/Artifacts/free5gc.conf
