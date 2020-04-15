@@ -1,6 +1,6 @@
-TOSCA-Meta-File-Version: 1.0
+TOSCA-Meta-File-Version: 1.2
 CSAR-Version: 1.1
-Created-By: IMAC
+Created-By: imac
 Entry-Definitions: Definitions/mongodb.yaml
 ETSI-Entry-Manifest: mongodb.mf
 ETSI-Entry-Change-Log: Files/ChangeLog.txt

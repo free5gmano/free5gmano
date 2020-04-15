@@ -1,6 +1,6 @@
 TOSCA-Meta-File-Version: 1.0
 CSAR-Version: 1.1
-Created-By: IMAC
+Created-By: imac
 Entry-Definitions: Definitions/ns.yaml
 ETSI-Entry-Manifest: free5gc-ns.mf
 ETSI-Entry-Change-Log: Files/ChangeLog.txt
