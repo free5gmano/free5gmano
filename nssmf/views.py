@@ -309,14 +309,14 @@ class Template(ModelViewSet):
                     # Delete onboard directory
                     try:
                         print('Delete directory...')
-                        os.removedirs(os.path.join(settings.DATA_DIR, generic_template.type,
-                                                   str(kwargs['id'])))
+                        shutil.rmtree(os.path.join(settings.DATA_DIR, generic_template.type,str(kwargs['id'])))
                         generic_template.delete()
                     except OSError as e:
                         print(e)
                         response = {
                             "status": "OperationFailed"
                         }
+                        print(response)
                         return JsonResponse(response, status=400)
                     else:
                         response = {
@@ -334,6 +334,7 @@ class Template(ModelViewSet):
                     "templateId": "Template does not exist",
                     "status": "OperationFailed"
                 }
+                print(response)
                 return JsonResponse(response, status=400)
         else:
             response = {
@@ -342,6 +343,7 @@ class Template(ModelViewSet):
                 },
                 "status": "OperationFailed"
             }
+            print(response)
             return JsonResponse(response, status=400)
 
     @csrf_exempt
