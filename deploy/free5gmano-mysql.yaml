@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: free5gmano-mysql
+spec:
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: free5gmano-mysql
+  template:
+    metadata:
+      labels:
+        app: free5gmano-mysql
+    spec:
+      containers:
+      - image: mysql:5.6
+        name: free5gmano-mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: password
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: free5gmano-mysql
+          mountPath: /var/lib/mysql
+        volumeMounts:
+        - name: mysql-initdb
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: free5gmano-mysql
+        persistentVolumeClaim:
+          claimName: free5gmano-mysql
+      volumes:
+      - name: mysql-initdb
+        configMap:
+          name: free5gmano-mysql-initdb-config
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: free5gmano-mysql
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: free5gmano-mysql
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: free5gmano-mysql
+spec:
+  type: NodePort
+  ports:
+  - port: 3306
+    nodePort: 30306
+  selector:
+    app: free5gmano-mysql
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: free5gmano-mysql-initdb-config
+data:
+  initdb.sql: |
+    CREATE DATABASE free5gmano;
