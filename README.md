@@ -55,7 +55,7 @@ kubectl apply -f .
 ```
 
 ### Manual install free5gmano
-If you deploy free5gmano by Kubernetes you can jump to [Apply a NSSI (Network Slice Subnet Instance)](#Apply-a-NSSI-(Network-Slice-Subnet-Instance)).
+If you deploy free5gmano by Kubernetes you can jump to [Apply a NSSI (Network Slice Subnet Instance)](#apply-a-nssi-network-slice-subnet-instance).
 1. Install the required packages
 ```
 sudo apt -y update
