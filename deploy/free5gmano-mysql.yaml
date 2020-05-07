@@ -68,10 +68,10 @@ kind: Service
 metadata:
   name: free5gmano-mysql
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
-  - port: 3306
-    nodePort: 30306
+  - name: mysql
+    port: 3306
   selector:
     app: free5gmano-mysql
 ---

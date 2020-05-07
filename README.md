@@ -47,7 +47,15 @@ Please refer to [kube5gnfvo](https://github.com/free5gmano/kube5gnfvo) Installat
 #### Option2 - install OpenStack Tacker
 Please refer to [OpenStack Tacker](https://github.com/free5gmano/tacker-example-plugin) Installation Guide to install OpenStack Tacker.
 
-### Install NM
+### Deploy free5gmano by Kubernetes
+```
+git clone https://github.com/free5gmano/free5gmano.git
+cd free5gmano/deploy
+kubectl apply -f .
+```
+
+### Manual install free5gmano
+If you deploy free5gmano by Kubernetes you can jump to [Apply a NSSI (Network Slice Subnet Instance)](#Apply-a-NSSI-(Network-Slice-Subnet-Instance)).
 1. Install the required packages
 ```
 sudo apt -y update
@@ -61,7 +69,7 @@ sudo alias python=python3
 sudo alias pip=pip3
 ```
 
-3. Clone nm_manager project
+3. Clone free5gmano project
 ```
 git clone https://github.com/free5gmano/free5gmano.git
 cd free5gmano
@@ -95,6 +103,7 @@ python manage.py migrate
 ```
 python manage.py runserver 0.0.0.0:8000
 ```
+
 ## Apply a NSSI (Network Slice Subnet Instance)
 ### Install the **nmctl** client
 Please refer to [free5gmano-cli](https://github.com/free5gmano/free5gmano-cli) Installation Guide to install free5gmano-cli.
@@ -145,6 +154,7 @@ NSST Id:: 66ff6b6f-6c54-4498-bc1e-411382c80bc5
 ```
 nmctl allocate nssi 66ff6b6f-6c54-4498-bc1e-411382c80bc5
 ```
+
 ## Docker Repository
 [free5gmano](https://hub.docker.com/repository/docker/free5gmano/free5gmano)
 [free5gc-stage-1](https://hub.docker.com/repository/docker/free5gmano/free5gc-base)

@@ -22,13 +22,13 @@ spec:
             - name: FREE5GMANO_MYSQL_PASSWORD
               value: "password"
             - name: FREE5GMANO_MYSQL_HOST
-              value: "140.113.179.74"
+              value: "free5gmano-mysql"
             - name: FREE5GMANO_MYSQL_PORT
-              value: "30306"
+              value: "3306"
             - name: FREE5GMANO_NM
-              value: "140.113.179.74:30088"
+              value: "free5gmano:8000"
             - name: FREE5GMANO_NFVO
-              value: "140.113.179.74:30888"
+              value: "kube5gnfvo"
           volumeMounts:
             - name: free5gmano-template-storage
               mountPath: /data/nm/
@@ -45,7 +45,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: free5gmano-svc
+  name: free5gmano
 spec:
   type: NodePort
   ports:
