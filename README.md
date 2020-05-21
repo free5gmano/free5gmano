@@ -69,7 +69,7 @@ sudo alias python=python3
 sudo alias pip=pip3
 ```
 
-3. Clone free5gmano project
+3. Clone nm_manager project
 ```
 git clone https://github.com/free5gmano/free5gmano.git
 cd free5gmano
@@ -96,14 +96,13 @@ CREATE DATABASE free5gmano
 ```
 7. Database migrate
 ```
-python manage.py makemigrations nssmf
+python manage.py makemigrations nssmf moi
 python manage.py migrate
 ```
 8. Run the Django server
 ```
 python manage.py runserver 0.0.0.0:8000
 ```
-
 ## Apply a NSSI (Network Slice Subnet Instance)
 ### Install the **nmctl** client
 Please refer to [free5gmano-cli](https://github.com/free5gmano/free5gmano-cli) Installation Guide to install free5gmano-cli.
@@ -144,13 +143,24 @@ Template Id: 31e7f5ad-9259-4b9b-97b6-d3ff78996aec
 ```
 nmctl onboard template 31e7f5ad-9259-4b9b-97b6-d3ff78996aec -f NSD/
 ```
-8. Combined the VNF and NSD Template to Network Slice Subnet Template (NSST)
+8. Create a NRM Template
 ```
-nmctl create nsst -n kube5gnfvo 00936c28-ba30-4604-a134-4f4302acaea7 31e7f5ad-9259-4b9b-97b6-d3ff78996aec
+nmctl create template -t NRM -n kube5gnfvo
+Do you want to download example? [y/N]: y
+OperationSucceeded
+Template Id: 68e7411e-cf0d-4113-a15f-493ae5cad54f
+```
+9. Onboard the NRM Template
+```
+nmctl onboard template 68e7411e-cf0d-4113-a15f-493ae5cad54f -f NSD/
+```
+10. Combined the VNF, NSD, NRM Template to Network Slice Subnet Template (NSST)
+```
+nmctl create nsst -n kube5gnfvo 00936c28-ba30-4604-a134-4f4302acaea7 31e7f5ad-9259-4b9b-97b6-d3ff78996aec 68e7411e-cf0d-4113-a15f-493ae5cad54f
 OperationSucceeded, NSST is combined.
 NSST Id:: 66ff6b6f-6c54-4498-bc1e-411382c80bc5
 ```
-9. Apply a NSSI
+11. Apply a NSSI
 ```
 nmctl allocate nssi 66ff6b6f-6c54-4498-bc1e-411382c80bc5
 ```
