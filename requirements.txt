@@ -1,4 +1,4 @@
-PyYAML
+PyYAML==5.3.1
 pprint
 jsonschema
 Django==2.2.8
@@ -9,4 +9,4 @@ requests==2.21.0
 # pymysql #for windows
 django-mysql
 mysqlclient #for linux
-service_mapping_plugin_framework
+drf_yasg==1.17.0

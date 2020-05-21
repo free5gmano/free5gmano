@@ -21,5 +21,5 @@ from free5gmano import settings
 if not os.path.exists('/data/'):
     os.mkdir('/data/')
 
-if not os.path.exists(settings.DATA_DIR):
-    os.mkdir(settings.DATA_DIR)
+if not os.path.exists(settings.MEDIA_ROOT):
+    os.mkdir(settings.MEDIA_ROOT)
