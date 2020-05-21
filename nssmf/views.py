@@ -288,6 +288,43 @@ class ProvisioningView(GenericViewSet, mixins.CreateModelMixin, mixins.DestroyMo
             print(e)
             return JsonResponse(response_data, status=400)
 
+    def destroy(self, request, *args, **kwargs):
+        """
+            Deallocate Network Slice Subnet Instance.
+
+            Deallocate a new individual Network Slice Subnet Instance
+        """
+        response_data = dict()
+        response_data['status'] = OperationStatus.OPERATION_FAILED
+        try:
+            slice_id = kwargs['pk']
+            if self.get_queryset().filter(instanceId=slice_id):
+                response_data['status'] = OperationStatus.OPERATION_SUCCEEDED
+                unit_query = self.get_queryset().filter(instanceId=slice_id)[0]
+                slice_serializer = self.get_serializer(unit_query)
+                service_plugin = slice_serializer.data['nfvoType'][0]
+                parameter = {
+                    'slice_template': slice_serializer.data['templateId'],
+                    'slice_instance': slice_id,
+                    'mano_template': False
+                }
+                plugin = importlib.import_module(
+                    'nssmf.plugin.{}.{}.{}'.format(
+                        service_plugin['name'],
+                        service_plugin['deallocate_nssi'].split('/')[0],
+                        service_plugin['deallocate_nssi'].split('/')[1].split('.')[0]))
+                nfvo_plugin = plugin.NFVOPlugin(service_plugin['nm_host'],
+                                                service_plugin['nfvo_host'],
+                                                service_plugin['subscription_host'],
+                                                parameter)
+                nfvo_plugin.deallocate_nssi()
+                unit_query.instanceId.remove(slice_id)
+                return JsonResponse(response_data)
+            else:
+                return JsonResponse(response_data, status=400)
+        except TypeError:
+            return JsonResponse(response_data, status=400)
+
 
 class ServiceMappingPluginView(ModelViewSet):
     """ Service Mapping Plugin framework

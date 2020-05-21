@@ -160,9 +160,25 @@ nmctl create nsst -n kube5gnfvo 00936c28-ba30-4604-a134-4f4302acaea7 31e7f5ad-92
 OperationSucceeded, NSST is combined.
 NSST Id:: 66ff6b6f-6c54-4498-bc1e-411382c80bc5
 ```
-11. Apply a NSSI
+11. Commissioning a NSSI(via NSST)
 ```
 nmctl allocate nssi 66ff6b6f-6c54-4498-bc1e-411382c80bc5
+Do you want to Using exist Nssi? [y/N]: N
+Create Nssi...
+Nssi ID: b4483341-1021-44c0-b30f-bacfbb82eeaa
+```
+12. Modification a NSSI(via New NSST)
+`You should choice 'y' and provide Nssi ID`
+```
+nmctl allocate nssi 6d116653-6785-4d00-91fd-4d3a4603a286
+Do you want to Using exist Nssi? [y/N]: y
+Nssi ID: : b4483341-1021-44c0-b30f-bacfbb82eeaa
+Modify Nssi b4483341-1021-44c0-b30f-bacfbb82eeaa...
+```
+13. Decommissioning a NSSI
+```
+nmctl deallocate nssi b4483341-1021-44c0-b30f-bacfbb82eeaa
+Delete Nssi...
 ```
 
 ## Docker Repository
