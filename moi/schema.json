@@ -1,0 +1,289 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://3gpp.org/28541/sliceNrm.json",
+  "description": "JSON based solution set definitions for network slice and network slice subnet",
+  "_referenced_schema": [
+    "http://3gpp.org/28623/genericNrm.json",
+    "http://3gpp.org/28626/stateManagementNrm.json",
+    "http://3gpp.org/28541/nrNrm.json",
+    "http://3gpp.org/28541/ngcNrm.json"
+  ],
+  "definitions": {
+    "networkSlice": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "dnPrefix": {
+          "type": "string"
+        },
+        "userLabel": {
+          "type": "string"
+        },
+        "userDefinedNetworkType": {
+          "type": "string"
+        },
+        "setOfMcc": {
+          "type": "string"
+        },
+        "nSSIId": {
+          "$ref": "http://3gpp.org/28623/genericNrm.json#/definitions/Dn"
+        },
+        "operationalState": {
+          "$ref": "http://3gpp.org/28626/stateManagementNrm.json#/definitions/operationalState"
+        },
+        "administrativeState": {
+          "$ref": "http://3gpp.org/28626/stateManagementNrm.json#/definitions/administrativeState"
+        },
+        "serviceProfileList": {
+          "$ref": "#/definitions/ServiceProfileList"
+        }
+      },
+      "required": [
+        "userLabel",
+        "userDefinedNetworkType",
+        "nSSIId",
+        "operationalState",
+        "administrativeState",
+        "serviceProfileList"
+      ]
+    },
+    "networkSliceSubnet": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "dnPrefix": {
+          "type": "string"
+        },
+        "userLabel": {
+          "type": "string"
+        },
+        "userDefinedNetworkType": {
+          "type": "string"
+        },
+        "setOfMcc": {
+          "type": "string"
+        },
+        "mFIdList": {
+          "$ref": "http://3gpp.org/28623/genericNrm.json#/definitions/DnList"
+        },
+        "constituentNSSIIdList": {
+          "$ref": "http://3gpp.org/28623/genericNrm.json#/definitions/DnList"
+        },
+        "operationalState": {
+          "$ref": "http://3gpp.org/28626/stateManagementNrm.json#/definitions/OperationalState"
+        },
+        "administrativeState": {
+          "$ref": "http://3gpp.org/28626/stateManagementNrm.json#/definitions/AdministrativeState"
+        },
+        "nsInfo": {
+          "$ref": "#/definitions/NsInfo"
+        },
+        "sliceProfileList": {
+          "$ref": "#/definitions/ServiceProfileList"
+        }
+      },
+      "required": [
+        "userLabel",
+        "mFIdList",
+        "constituentNSSIIdList",
+        "operationalState",
+        "administrativeState",
+        "sliceProfileList"
+      ]
+    },
+    "MobilityLevel": {
+      "type": "string",
+      "enum": [
+        "STATIONARY",
+        "NOMADIC",
+        "RESTRICTED MOBILITY",
+        "FULLY MOBILITY"
+      ]
+    },
+    "SharingLevel": {
+      "type": "string",
+      "enum": [
+        "SHARED",
+        "NON-SHARED"
+      ]
+    },
+    "PrefReq": {
+      "type": "object",
+      "properties": {
+        "prefReqEmbb": {
+          "$ref": "#/definitions/PrefReqEmbb"
+        },
+        "prefReqUrllc": {
+          "$ref": "#/definitions/PrefReqUrllc"
+        }
+      }
+    },
+    "PerfReqEmbb": {
+      "type": "object",
+      "properties": {
+        "expDataRateDL": {
+          "type": "number"
+        },
+        "expDataRateUL": {
+          "type": "number"
+        },
+        "areaTrafficCapDL": {
+          "type": "number"
+        },
+        "areaTrafficCapUL": {
+          "type": "number"
+        },
+        "userDensity": {
+          "type": "number"
+        },
+        "activityFactor": {
+          "type": "number"
+        },
+        "uESpeed": {
+          "type": "number"
+        },
+        "coverage": {
+          "type": "string"
+        }
+      }
+    },
+    "PerfReqUrrlc": {
+      "type": "object",
+      "properties": {
+        "e2eLatency": {
+          "type": "number"
+        },
+        "jitter": {
+          "type": "number"
+        },
+        "survivalTime": {
+          "type": "number"
+        },
+        "areaTrafficCapUL": {
+          "type": "number"
+        },
+        "cSAvailability": {
+          "type": "number"
+        },
+        "reliability": {
+          "type": "number"
+        },
+        "expDataRate": {
+          "type": "number"
+        },
+        "payloadSize": {
+          "type": "number"
+        },
+        "trafficDensity": {
+          "type": "string"
+        },
+        "connDensity": {
+          "type": "number"
+        },
+        "serviceDimension": {
+          "type": "string"
+        }
+      }
+    },
+    "ServiceProfile": {
+      "type": "object",
+      "properties": {
+        "serviceProfileId": {
+          "type": "string"
+        },
+        "snssaiList": {
+          "$ref": "http://3gpp.org/28541/nrNrm.json#/definitions/SnssaiList"
+        },
+        "plmnIdList": {
+          "$ref": "http://3gpp.org/28541/nrNrm.json#/definitions/PlmnIdList"
+        },
+        "perfReq": {
+          "$ref": "#/definitions/PrefReq"
+        },
+        "maxNumberofUEs": {
+          "type": "number"
+        },
+        "coverageAreaTAList": {
+          "$ref": "http://3gpp.org/28541/ngcNrm.json#/definitions/TACList"
+        },
+        "latency": {
+          "type": "number"
+        },
+        "uEMobilityLevel": {
+          "type": "number"
+        },
+        "sst": {
+          "$ref": "http://3gpp.org/28541/ngcNrm.json#definitions/Sst"
+        },
+        "resourceSharingLevel": {
+          "type": "integer"
+        },
+        "availability": {
+          "type": "number"
+        }
+      }
+    },
+    "ServiceProfileList": {
+      "type": "array",
+      "item": {
+        "$ref": "#/definitions/ServiceProfile"
+      }
+    },
+    "SliceProfile": {
+      "type": "object",
+      "properties": {
+        "sliceProfileId": {
+          "type": "string"
+        },
+        "snssaiList": {
+          "$ref": "http://3gpp.org/28541/nrNrm.json#/definitions/SnssaiList"
+        },
+        "plmnIdList": {
+          "$ref": "http://3gpp.org/28541/nrNrm.json#/definitions/PlmnIdList"
+        },
+        "perfReq": {
+          "$ref": "#/definitions/PrefReq"
+        },
+        "maxNumberofUEs": {
+          "type": "number"
+        },
+        "coverageAreaTAList": {
+          "$ref": "http://3gpp.org/28541/ngcNrm.json#/definitions/TACList"
+        },
+        "latency": {
+          "type": "number"
+        },
+        "uEMobilityLevel": {
+          "type": "number"
+        },
+        "resourceSharingLevel": {
+          "type": "integer"
+        }
+      }
+    },
+    "SliceProfileList": {
+      "type": "array",
+      "item": {
+        "$ref": "#/definitions/SliceProfile"
+      }
+    },
+    "NsInfo": {
+      "type": "object",
+      "properties": {
+        "nsInstanceId": {
+          "type": "string"
+        },
+        "nsName": {
+          "type": "string"
+        },
+        "description ": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
