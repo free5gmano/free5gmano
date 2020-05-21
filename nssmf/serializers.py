@@ -102,8 +102,7 @@ class ServiceMappingPluginSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         response_data = dict()
-        zipfile_check = ['deallocate/main.py', 'deallocate/', 'config.yaml',
-                         'allocate/main.py', 'allocate/']
+        zipfile_check = ['deallocate/main.py', 'config.yaml', 'allocate/main.py']
         # Extract Zip file
         with zipfile.ZipFile(validated_data['pluginFile']) as _zipfile:
             for file in _zipfile.filelist:
@@ -133,8 +132,7 @@ class ServiceMappingPluginSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         response_data = dict()
-        zipfile_check = ['requirements.txt', 'deallocate/main.py', 'deallocate/', 'config.yaml',
-                         'allocate/main.py', 'allocate/', '.gitignore']
+        zipfile_check = ['deallocate/main.py', 'config.yaml', 'allocate/main.py']
         # Extract Zip file
         with zipfile.ZipFile(validated_data['pluginFile']) as _zipfile:
             for file in _zipfile.filelist:

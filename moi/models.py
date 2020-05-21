@@ -4,7 +4,6 @@ from django.db import models
 from django.db.models import CharField
 from django_mysql.models import ListTextField
 
-
 # Create your models here.
 
 
@@ -126,10 +125,3 @@ class PCFunction(models.Model):
     sBIFQDN = models.TextField()
     sBIServiceList = models.TextField()
     sNSSAIList = models.ManyToManyField(SNSSAIList, related_name='sNSSAIListId_PCFFunction')
-
-
-class OtherFunction(models.Model):
-    pLMNIdList = models.ManyToManyField(PLMNIdList, related_name='pLMNIdListId_OtherFunction')
-    sBIFQDN = models.TextField()
-    sBIServiceList = models.TextField()
-    sNSSAIList = models.ManyToManyField(SNSSAIList, related_name='sNSSAIListId_OtherFunction')

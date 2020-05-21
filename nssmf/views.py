@@ -161,7 +161,7 @@ class GenericTemplateView(MultipleSerializerViewSet):
         self.partial_update(request, *args, **kwargs)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, methods=['get'], url_path='download/(?P<path>(.)*)')
+    @action(detail=False, methods=['get'], url_path='download/(?P<path>(.)*)')
     def download(self, request, *args, **kwargs):
         """
             Download an individual Generic Template.
