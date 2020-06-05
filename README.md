@@ -92,7 +92,7 @@ source ~/.bashrc
 6. Create a database
 ```
 mysql -h $FREE5GMANO_MYSQL_HOST -u $FREE5GMANO_MYSQL_USER -p$FREE5GMANO_MYSQL_PASSWORD
-CREATE DATABASE free5gmano
+CREATE DATABASE free5gmano;
 ```
 7. Database migrate
 ```
