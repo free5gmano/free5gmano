@@ -12,24 +12,12 @@ spec:
       labels:
         app: free5gc-amf
     spec:
-      containers:
+      containers:      
       - name: myapp-container
-        image: free5gmano/free5gc-base
+        image: cewuandy/free5gc-base
         imagePullPolicy: Always
-        command: ["/bin/sh", "-c", "/root/free5gc/free5gc-amfd"]
-        env:
-        - name: pLMNIdList
-          value: 
-        - name: aMFIdentifier
-          value: 
-        - name: sBIFQDN
-          value: 
-        - name: sBIServiceList
-          value: 
-        - name: sNSSAIList
-          value:
-        - name: weightFactor
-          value: 
+        command: ["/bin/sh"]
+        args: ["-c", "/root/free5gc/free5gc-amfd"]
         volumeMounts:
         - name: free5gc-config
           mountPath: /root/free5gc/install/etc/free5gc/free5gc.conf
@@ -39,10 +27,9 @@ spec:
           subPath: amf.conf
       initContainers:
       - name: init-network-client
-        image: quay.io/mengzn/network-controller:latest
-        imagePullPolicy: Always
+        image: sdnvortex/network-controller:v0.4.9
         command: ["/go/bin/client"]
-        args: ["-s=unix:///tmp/vortex.sock", "-b=br100", "-n=eth100", "-i=192.168.2.200","--deploy=free5gc-amf-deployment"]
+        args: ["-s=unix:///tmp/vortex.sock", "-b=br0", "-n=eth1", "-i=192.168.2.2/24"]
         env:
         - name: POD_NAME
           valueFrom:

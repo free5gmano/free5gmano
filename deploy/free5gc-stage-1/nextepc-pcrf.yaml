@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nextepc-pcrf-deployment
-  labels:
-    interface: "true" 
 spec:
   selector:
     matchLabels:
@@ -16,7 +14,7 @@ spec:
     spec:
       containers:      
       - name: myapp-container
-        image: free5gmano/free5gc-base
+        image: cewuandy/free5gc-base
         imagePullPolicy: Always
         command: ["/bin/sh"]
         args: ["-c", "/root/free5gc/nextepc-pcrfd"]
@@ -30,7 +28,31 @@ spec:
         - name: nextepc-freediameter-config
           mountPath: /root/free5gc/install/etc/free5gc/freeDiameter/pcrf.conf
           subPath: pcrf.conf
+      initContainers:
+      - name: init-network-client
+        image: sdnvortex/network-controller:v0.4.9
+        command: ["/go/bin/client"]
+        args: ["-s=unix:///tmp/vortex.sock", "-b=br0", "-n=eth1", "-i=192.168.2.6/24"]
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_UUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        volumeMounts:
+        - mountPath: /tmp/
+          name: grpc-sock
       volumes:
+      - name: grpc-sock
+        hostPath:
+          path: /tmp/vortex/
       - name: free5gc-config
         configMap:
           name: free5gc-configmap

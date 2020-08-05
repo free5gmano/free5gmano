@@ -40,26 +40,7 @@ data:
         no_ipv6: true
 
     amf:
-        freeDiameter:
-          identity: amf.localdomain
-          realm: localdomain
-          no_sctp: true
-          # listen_on addr: both IP/FQDN are supported
-          listen_on: free5gc-amf-deployment.default.example.local
-          load_extension:
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dbg_msg_dumps/.libs/dbg_msg_dumps.so
-              conf: 0x8888
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_rfc5777/.libs/dict_rfc5777.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_mip6i/.libs/dict_mip6i.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_nasreq/.libs/dict_nasreq.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_nas_mipv6/.libs/dict_nas_mipv6.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_dcca/.libs/dict_dcca.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_dcca_3gpp/.libs/dict_dcca_3gpp.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_s6a/.libs/dict_s6a.so
-          connect:
-            - identity: hss.localdomain
-              # remote addr: both IP/FQDN are supported
-              addr: nextepc-hss-deployment.default.example.local
+        freeDiameter: amf.conf
 
     #
     #  <S1AP Server>>
@@ -86,7 +67,7 @@ data:
     #      dev: eth0
     #
         s1ap:
-          addr: free5gc-amf-deployment.default.example.local
+          addr: 192.168.2.2
 
     #
     #  <GUMMEI>
@@ -168,77 +149,22 @@ data:
             full: free5GC
 
     hss:
-        freeDiameter:
-          identity: hss.localdomain
-          realm: localdomain
-          no_sctp: true
-          # listen_on addr: both IP/FQDN are supported
-          listen_on: nextepc-hss-deployment.default.example.local
-          load_extension:
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dbg_msg_dumps/.libs/dbg_msg_dumps.so
-              conf: 0x8888
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_rfc5777/.libs/dict_rfc5777.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_mip6i/.libs/dict_mip6i.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_nasreq/.libs/dict_nasreq.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_nas_mipv6/.libs/dict_nas_mipv6.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_dcca/.libs/dict_dcca.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_dcca_3gpp/.libs/dict_dcca_3gpp.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_s6a/.libs/dict_s6a.so
-          connect:
-            - identity: amf.localdomain
-              # remote addr: both IP/FQDN are supported
-              addr: free5gc-amf-deployment.default.example.local
+        freeDiameter: hss.conf
 
     pcrf:
-        freeDiameter:
-          identity: pcrf.localdomain
-          realm: localdomain
-          no_sctp: true
-          # listen_on addr: both IP/FQDN are supported
-          listen_on: nextepc-pcrf-deployment.default.example.local
-          load_extension:
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dbg_msg_dumps/.libs/dbg_msg_dumps.so
-              conf: 0x8888
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_rfc5777/.libs/dict_rfc5777.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_mip6i/.libs/dict_mip6i.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_nasreq/.libs/dict_nasreq.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_nas_mipv6/.libs/dict_nas_mipv6.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_dcca/.libs/dict_dcca.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_dcca_3gpp/.libs/dict_dcca_3gpp.so
-          connect:
-            - identity: smf.localdomain
-              # remote addr: both IP/FQDN are supported
-              addr: free5gc-smf-deployment.default.example.local
+        freeDiameter: pcrf.conf
 
     smf:
-        freeDiameter:
-          identity: smf.localdomain
-          realm: localdomain
-          no_sctp: true
-          # listen_on addr: both IP/FQDN are supported
-          listen_on: free5gc-smf-deployment.default.example.local
-          load_extension:
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dbg_msg_dumps/.libs/dbg_msg_dumps.so
-              conf: 0x8888
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_rfc5777/.libs/dict_rfc5777.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_mip6i/.libs/dict_mip6i.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_nasreq/.libs/dict_nasreq.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_nas_mipv6/.libs/dict_nas_mipv6.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_dcca/.libs/dict_dcca.so
-            - module: /root/free5gc/lib/freeDiameter-1.2.1/extensions/dict_dcca_3gpp/.libs/dict_dcca_3gpp.so
-          connect:
-            - identity: pcrf.localdomain
-              # remote addr: both IP/FQDN are supported
-              addr: nextepc-pcrf-deployment.default.example.local
+        freeDiameter: smf.conf
 
         pfcp:
-          - addr: free5gc-smf-deployment.default.example.local
+          - addr: 192.168.2.4
 
         upf:
-          - addr: free5gc-upf-deployment.default.example.local
+          - addr: 192.168.2.5
 
         http:
-          addr: free5gc-smf-deployment.default.example.local
+          addr: 192.168.2.4
           port: 8080
 
     #
@@ -306,7 +232,7 @@ data:
     upf:
         pfcp:
           addr:
-            - free5gc-upf-deployment.default.example.local
+            - 192.168.2.5
 
     #
     #  <GTP-U Server>>
@@ -321,7 +247,7 @@ data:
     #      name: localhost
     #
         gtpu:
-          - addr: free5gc-upf-deployment.default.example.local
+          - addr: 192.168.2.5
 
         ue_pool:
           - addr: 45.45.0.1/16

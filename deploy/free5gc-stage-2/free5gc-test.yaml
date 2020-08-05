@@ -10,7 +10,7 @@ spec:
         image: free5gmano/free5gc-test
         securityContext:
           privileged: true
-        imagePullPolicy: Always
+      restartPolicy: OnFailure
       initContainers:
       - name: init-network-client
         image: sdnvortex/network-controller:v0.4.9
