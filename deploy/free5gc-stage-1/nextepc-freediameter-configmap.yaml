@@ -7,7 +7,7 @@ data:
     
     No_SCTP;
     
-    ListenOn = "nextepc-pcrf-deployment.default.example.local";
+    ListenOn = "192.168.2.6";
 
     TLS_Cred = "/root/free5gc/install/etc/free5gc/freeDiameter/pcrf.cert.pem", "/root/free5gc/install/etc/free5gc/freeDiameter/pcrf.key.pem";
     TLS_CA = "/root/free5gc/install/etc/free5gc/freeDiameter/cacert.pem";
@@ -20,7 +20,7 @@ data:
     LoadExtension = "dict_dcca.so";
     LoadExtension = "dict_dcca_3gpp.so";
     
-    ConnectPeer = "smf.localdomain" { ConnectTo = "free5gc-smf-deployment.default.example.local"; No_TLS; };
+    ConnectPeer = "smf.localdomain" { ConnectTo = "192.168.2.4"; No_TLS; };
 
   hss.conf: |
     Identity = "hss.localdomain";
@@ -29,7 +29,7 @@ data:
     
     No_SCTP;
     
-    ListenOn = "nextepc-hss-deployment.default.example.local";
+    ListenOn = "192.168.2.3";
 
     TLS_Cred = "/root/free5gc/install/etc/free5gc/freeDiameter/hss.cert.pem", "/root/free5gc/install/etc/free5gc/freeDiameter/hss.key.pem";
     TLS_CA = "/root/free5gc/install/etc/free5gc/freeDiameter/cacert.pem";
@@ -43,7 +43,7 @@ data:
     LoadExtension = "dict_dcca_3gpp.so";
     LoadExtension = "dict_s6a.so";
     
-    ConnectPeer = "amf.localdomain" { ConnectTo = "free5gc-amf-deployment.default.example.local"; No_TLS; };
+    ConnectPeer = "amf.localdomain" { ConnectTo = "192.168.2.2"; No_TLS; };
 
 kind: ConfigMap
 metadata:

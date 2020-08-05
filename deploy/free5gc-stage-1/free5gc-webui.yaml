@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: free5gc-webui
-        image: free5gmano/free5gc-webui
+        image: cewuandy/free5gc-webui
         ports:
         - containerPort: 3000
 ---
