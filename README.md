@@ -7,6 +7,7 @@
 - [Getting started](#Getting-started)
   - [Install NFV-MANO](#Install-NFV-MANO)
   - [Install NM](#Install-NM)
+  - [Install Kafka](#Install-Kafka)
 - [Apply a NSSI (Network Slice Subnet Instance)](#Apply-a-NSSI-(Network-Slice-Subnet-Instance))
   - [Install the nmctl client](#Install-the-nmctl-client)
 - [Release Note](#Release-Note)
@@ -23,7 +24,7 @@ Thank you very much for your interest in free5gmano. The license of Stage 2 free
 This project is initiated by:
 [![](https://i.imgur.com/7HU6PZu.png)](https://www.moea.gov.tw/)[![](https://i.imgur.com/kNImVoF.png)](https://www.edu.tw/)
 ## Architecture
-![](https://i.imgur.com/xURxQ14.png)
+![](https://imgur.com/ImpCFyt.png)
 It's refer to [ETSI GS NFV-MAN 001 V1.1.1](https://www.etsi.org/deliver/etsi_gs/NFV-MAN/001_099/001/01.01.01_60/gs_NFV-MAN001v010101p.pdf)
 
 ## Features
@@ -38,6 +39,7 @@ The following packages are required:
 * pip3
 * mysql
 * NFV-MANO
+* Kafka
 
 ## Getting started
 ### Install NFV-MANO
@@ -53,7 +55,8 @@ git clone https://github.com/free5gmano/free5gmano.git
 cd free5gmano/deploy
 kubectl apply -f .
 ```
-
+### Install Kafka
+Please refer to [Kafka](https://docs.confluent.io/current/getting-started.html) Installation Guide to install Kafka.
 ### Manual install free5gmano
 If you deploy free5gmano by Kubernetes you can jump to [Apply a NSSI (Network Slice Subnet Instance)](#apply-a-nssi-network-slice-subnet-instance).
 1. Install the required packages
@@ -179,6 +182,16 @@ Modify Nssi b4483341-1021-44c0-b30f-bacfbb82eeaa...
 ```
 nmctl deallocate nssi b4483341-1021-44c0-b30f-bacfbb82eeaa
 Delete Nssi...
+```
+14. Create Fault Management Subscription for NSSI
+```
+nmctl create subscriptions bcb5818e-f097-4812-b483-bf968b4f2581
+notification Id: 3ae036cf-b4ea-46e3-b4da-3ef122c96e1e
+```
+15. Delete Fault Management Subscription for NSSI
+```
+nmctl delete subscriptions 3ae036cf-b4ea-46e3-b4da-3ef122c96e1e
+OperationSucceeded
 ```
 
 ## Docker Repository
