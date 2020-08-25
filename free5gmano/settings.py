@@ -61,7 +61,8 @@ INSTALLED_APPS = [
     'jsonschema',
     'nssmf',
     "drf_yasg",
-    "moi"
+    "moi",
+    'FaultManagement'
 ]
 
 MIDDLEWARE = [
