@@ -155,7 +155,7 @@ Template Id: 68e7411e-cf0d-4113-a15f-493ae5cad54f
 ```
 9. Onboard the NRM Template
 ```
-nmctl onboard template 68e7411e-cf0d-4113-a15f-493ae5cad54f -f NSD/
+nmctl onboard template 68e7411e-cf0d-4113-a15f-493ae5cad54f -f NRM/
 ```
 10. Combined the VNF, NSD, NRM Template to Network Slice Subnet Template (NSST)
 ```
@@ -183,14 +183,19 @@ Modify Nssi b4483341-1021-44c0-b30f-bacfbb82eeaa...
 nmctl deallocate nssi b4483341-1021-44c0-b30f-bacfbb82eeaa
 Delete Nssi...
 ```
-14. Create Fault Management Subscription for NSSI
+14. Create Management Object Instance Subscription
 ```
-nmctl create subscriptions bcb5818e-f097-4812-b483-bf968b4f2581
+nmctl create subscriptions -t moi <<Nssi_ID>>
 notification Id: 3ae036cf-b4ea-46e3-b4da-3ef122c96e1e
 ```
-15. Delete Fault Management Subscription for NSSI
+15. Create Fault Management Subscription
 ```
-nmctl delete subscriptions 3ae036cf-b4ea-46e3-b4da-3ef122c96e1e
+nmctl create subscriptions -t fm <<Nssi_ID>>
+notification Id: 3ae036cf-b4ea-46e3-b4da-3ef122c96e1e
+```
+16. Delete Fault Management Subscription
+```
+nmctl delete subscriptions <<notification_Id>>
 OperationSucceeded
 ```
 

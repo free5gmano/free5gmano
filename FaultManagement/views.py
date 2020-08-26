@@ -169,7 +169,7 @@ class FaultSupervisionSubscriptionsView(GenericViewSet,
         nssi_obj = NetworkSliceSubnet.objects.get(nsInfo=nsi_id)
         nsst_obj = SliceTemplate.objects.get(instanceId=nssi_obj.nssiId)
         NFVO_HOST = nsst_obj.nfvoType.values()[0]['nfvo_host']
-        url = "http://{}/nsfm/v1/subscriptions/{}/".format(NFVO_HOST, nsi_id)
+        url = "http://{}/nsfm/v1/subscriptions/{}/".format(NFVO_HOST, kwargs['pk'])
         response = requests.delete(url)
         if response.status_code == 204:
             return super().destroy(request, *args, **kwargs)
