@@ -45,6 +45,7 @@ SECRET_KEY = 'o!#rpcte*37y_shpqb&uobz3^myc^_u*cr(c=twq=8rf!z1moq'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+THREAD_POOL = {}
 
 ALLOWED_HOSTS = ['*']
 
@@ -61,12 +62,15 @@ INSTALLED_APPS = [
     'jsonschema',
     'nssmf',
     "drf_yasg",
-    "moi"
+    "moi",
+    'FaultManagement',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -99,14 +103,18 @@ WSGI_APPLICATION = 'free5gmano.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'free5gmano',
-        'USER': os.getenv('FREE5GMANO_MYSQL_USER', 'root'),
-        'PASSWORD': os.getenv('FREE5GMANO_MYSQL_PASSWORD', 'password'),
-        'HOST': os.getenv('FREE5GMANO_MYSQL_HOST', '10.0.0.232'),
-        'PORT': os.getenv('FREE5GMANO_MYSQL_PORT', '30306'),
+        'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+#    'default': {
+#        'ENGINE': 'django.db.backends.mysql',
+#        'NAME': 'free5gmano',
+#        'USER': os.getenv('FREE5GMANO_MYSQL_USER', 'root'),
+#        'PASSWORD': os.getenv('FREE5GMANO_MYSQL_PASSWORD', 'password'),
+#        'HOST': os.getenv('FREE5GMANO_MYSQL_HOST', '10.0.0.232'),
+#        'PORT': os.getenv('FREE5GMANO_MYSQL_PORT', '30306'),
+#    }
 }
 
 # Password validation
@@ -144,3 +152,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_HEADERS = ['*']
