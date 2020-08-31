@@ -1,0 +1,23 @@
+tosca_definitions_version: tosca_simple_yaml_1_2
+
+topology_template:
+  node_templates:
+    NS1:
+      type: tosca.nodes.nfv.NS
+      properties:
+        descriptor_id: 2116fd24-83f2-416b-bf3c-ca19647vmaqq
+        designer: imac
+        version: 1.0
+        name: free5gc
+        invariant_id: 1111-2222-aaaa-bbbb
+        constituent_vnfd:
+          - vnfd_id: 2116fd24-83f2-416b-bf3c-ca19647vmamf
+          - vnfd_id: 2116fd24-83f2-416b-bf3c-ca1964vmausf
+          - vnfd_id: 2116fd24-83f2-416b-bf3c-ca19647vmnrf
+          - vnfd_id: 2116fd24-83f2-416b-bf3c-ca1964vmnssf
+          - vnfd_id: 2116fd24-83f2-416b-bf3c-ca19647vmpcf
+          - vnfd_id: 2116fd24-83f2-416b-bf3c-ca19647vmsmf
+          - vnfd_id: 2116fd24-83f2-416b-bf3c-ca19647vmudm
+          - vnfd_id: 2116fd24-83f2-416b-bf3c-ca19647vmudr
+          - vnfd_id: 2116fd24-83f2-416b-bf3c-ca19647vmupf
+          - vnfd_id: 2116fd24-83f2-416b-bf3c-ca1vmmongodb

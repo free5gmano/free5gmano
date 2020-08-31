@@ -1,0 +1,79 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+topology_template:
+  node_templates:
+    VNF1:
+      type: tosca.nodes.nfv.VNF
+      properties:
+        descriptor_id: 2116fd24-83f2-416b-bf3c-ca1964vmnssf
+        descriptor_version: 1.0
+        provider: imac
+        product_name: nssf
+        software_version: latest
+
+    VDU1:
+      type: tosca.nodes.nfv.Vdu.Compute
+      properties:
+        sw_image_data:
+          name: free5gc-control-plane
+          provider: free5gmano
+          version: latest
+          diskFormat: qcow2
+      capabilities:
+        virtual_compute:
+          properties:
+            virtual_memory:
+              virtual_mem_size: 512Mi
+            virtual_cpu:
+              num_virtual_cpu: 250m
+      artifacts:
+        sw_image:
+          type: tosca.artifacts.nfv.SwImage
+          file: free5gmano/kube5gnfvo-stage2-kubevirt
+      attributes:
+        namespace: default
+        replicas: 1
+        command:
+          - cd /root
+          - git clone https://github.com/tw0927041027/OpenStack-Tacker-Exercise -b kubevirt
+          - cp /OpenStack-Tacker-Exercise/kubevirt-free5gcv2/free5GC.conf /root/go/src/free5gc/config/free5GC.conf
+          - cp /OpenStack-Tacker-Exercise/kubevirt-free5gcv2/nssfcfg.conf /root/go/src/free5gc/config/nssfcfg.conf
+          - /root/go/src/free5gc/bin/nssf
+        user_name: debian
+        user_public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDdrPXjr6+t7oy0lw8UtTWM0fwO5f6sCwK4IUHCJyuxAbm9YNNQ1h18Z2jGAgUh63vv38RmqnquY8vcArD/vZrCErdfewmQv0c8TUIFQTHytPv1lt0J8NbrNnd8Re0bDxyN0GhvESI2Wj8lLWgVk9yOZWKUlh2CGTUmrbJ/jn1TU8FU83NsbxGO9lXKk1id2DMhXWspltlLOlpSEDT1oA4MxcKRAV3qUQNGPvdY29Pb5f/Fs0OtVaFGUgbQ3YQbJZRHLrnqYIGCCf6fLHGj0cP2dDTFFu6ZOzKvGUFRpp+ANsZjg3O4UwF7E2hOR2G5bVK0qqOUYZjFzirGNKXqkCZ/ root@jerry-onos-209
+
+
+    CP1:
+      type: tosca.nodes.nfv.Cpd
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        virtual_binding: VDU1
+        virtual_link: VL1
+
+    VL1:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        network_name: management
+        vl_profile:
+          virtual_link_protocol_data:
+            l3_protocol_data:
+              dhcp_enabled: False
+
+    CP2:
+      type: tosca.nodes.nfv.Cpd
+      properties:
+        type: ovs
+        layer_protocol: ipv4
+      requirements:
+        virtual_binding: VDU1
+        virtual_link: VL2
+
+    VL2:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        network_name: ovs-net
+        vl_profile:
+          virtual_link_protocol_data:
+            l3_protocol_data:
+              cidr: 192.168.2.6/23

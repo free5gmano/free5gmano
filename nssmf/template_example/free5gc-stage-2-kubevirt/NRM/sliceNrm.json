@@ -1,0 +1,42 @@
+{
+  "schema": "Slice template",
+  "description": "JSON based solution set definitions for network slice and network slice subnet",
+  "definitions": {
+    "networkSliceSubnet": {
+      "properties": {
+        "mFIdList": [],
+        "constituentNSSIIdList": [],
+        "operationalState": "ENABLED",
+        "administrativeState": "LOCKED",
+        "nsInfo": ""
+      }
+    },
+    "PrefReq": {
+      "type": "PerfReqEmbb",
+      "properties": {
+        "scenario": "Urban macro",
+        "expDataRateDL": "50 Mbps",
+        "expDataRateUL": "50 Mbps",
+        "areaTrafficCapDL": "50 Mbps",
+        "areaTrafficCapUL": "50 Mbps",
+        "userDensity": "10 000/km2",
+        "activityFactor": "20%",
+        "uESpeed": "Pedestrians and users in vehicles (up to 120 km/h)",
+        "coverage": "Full network"
+      }
+    },
+    "PlmnIdList": {
+        "mcc": "466",
+        "mnc": "01",
+        "operator": "Telecom01"
+    },
+    "SnssaiList": {
+      "sst": {
+        "value": "1",
+        "type": "eMBB",
+        "characteristics": "Slice suitable for the handling of 5G enhanced Mobile Broadband."
+      },
+      "sd": "FFFFFF"
+    }
+  }
+}

@@ -152,7 +152,7 @@ Template Id: 68e7411e-cf0d-4113-a15f-493ae5cad54f
 ```
 9. Onboard the NRM Template
 ```
-nmctl onboard template 68e7411e-cf0d-4113-a15f-493ae5cad54f -f NSD/
+nmctl onboard template 68e7411e-cf0d-4113-a15f-493ae5cad54f -f NRM/
 ```
 10. Combined the VNF, NSD, NRM Template to Network Slice Subnet Template (NSST)
 ```
