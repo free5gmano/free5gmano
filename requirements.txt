@@ -9,4 +9,4 @@ requests==2.21.0
 # pymysql #for windows
 django-mysql
 mysqlclient #for linux
-service_mapping_plugin_framework
+service-mapping-plugin-framework==1.2
