@@ -86,7 +86,9 @@ class ServiceMappingPluginSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         if 'context' in kwargs.keys():
             view = kwargs['context']['view']
-            if view.action in ('retrieve', 'list'):
+            if view.action == 'list':
+                self.Meta.fields = ['name', 'allocate_nssi', 'deallocate_nssi', 'pluginFile']
+            elif view.action == 'retrieve':
                 self.Meta.fields = ['name', 'allocate_nssi', 'deallocate_nssi']
             elif view.action == 'create':
                 self.Meta.fields = ['name', 'pluginFile']

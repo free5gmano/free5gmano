@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+# from moi.models import *
 from moi.models import NetworkSliceSubnet
 from moi.models import NsInfo
 from moi.models import PLMNIdList
@@ -16,7 +16,9 @@ from moi.models import SMFFunction
 from moi.models import UPFFunction
 from moi.models import PCFunction
 from moi.models import OtherFunction
-
+from moi.models import CommonNotification
+from moi.models import Subscription
+from django.apps import apps
 
 class SSTSerializer(serializers.ModelSerializer):
     class Meta:
@@ -130,4 +132,53 @@ class NetworkSliceSubnetTopologySerializer(serializers.ModelSerializer):
     class Meta:
         model = NetworkSliceSubnet
         fields = ['nssiId', 'nsInfo']
+
+class CommonNotificationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CommonNotification
+        fields = '__all__'
+
+    @staticmethod
+    def check(validated_data):
+        # Check objectInstanceInfos (type: list) is exist in objectClass
+        object = apps.get_model(app_label='moi', model_name=validated_data['objectClass'])
+        object_queryset = object.objects.values(object._meta.pk.name)
+        pk_list = list()
+        for query in object_queryset:
+            for _ in query:
+                pk_list.append(str(query[_]))
+        return all(element in pk_list for element in eval(validated_data['objectInstanceInfos']))
+
+    def create(self, validated_data):
+        if self.check(validated_data) or validated_data['notificationType'] == 'notifyMOICreation':
+            return super().create(validated_data)
+        raise Exception('objectClass is not found objectInstanceInfos in table.')
+
+    def update(self, instance, validated_data):
+        if self.check(validated_data) or validated_data['notificationType'] == 'notifyMOICreation':
+            return super().update(instance, validated_data)
+        raise Exception('objectClass is not found objectInstanceInfos in table.')
+
+    @property
+    def data(self):
+        serialized_data = super().data
+        serialized_data['objectInstanceInfos'] = eval(serialized_data['objectInstanceInfos'])
+        serialized_data['additionalText'] = eval(serialized_data['additionalText'])
+        return serialized_data
+
+
+class SubscriptionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscription
+        fields = '__all__'
+
+
+class SubscriptionRetrieveSerializer(serializers.ModelSerializer):
+    filter = CommonNotificationSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Subscription
+        fields = '__all__'
 

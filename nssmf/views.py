@@ -138,10 +138,10 @@ class GenericTemplateView(MultipleSerializerViewSet):
                     with _zipfile.open(element) as file:
                         content = yaml.load(file, Loader=yaml.FullLoader)
                         filename = element
-                    check_result = self.check(request, content, filename)
+                    # check_result = self.check(request, content, filename)
 
-                    if check_result:
-                        return Response(check_result, status=400)
+                    # if check_result:
+                    #     return Response(check_result, status=400)
 
                     content_obj = Content(type=self.get_object().templateType,
                                           tosca_definitions_version=content[
@@ -396,6 +396,8 @@ class ServiceMappingPluginView(ModelViewSet):
         try:
             plugin_obj = ServiceMappingPluginModel.objects.get(name=kwargs['name'])
             with plugin_obj.pluginFile.open() as f:
-                return HttpResponse(f.read(), content_type="application/zip")
+                response = HttpResponse(f.read(), content_type="application/zip")
+                response['Content-Disposition'] = 'inline; filename=' + kwargs['filename']
+                return response
         except IOError:
             raise Http404
