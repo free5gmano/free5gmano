@@ -34,13 +34,15 @@ topology_template:
         namespace: default
         replicas: 1
         name_of_service: webui
-        ports: 3000
+        ports:
+        - 3000
         is_export_service: True
         command: [sh, -c, npm run dev]
 
     CP1:
       type: tosca.nodes.nfv.Cpd
       properties:
+        type: ovs
         layer_protocol: ipv4
       requirements:
         virtual_binding: VDU1

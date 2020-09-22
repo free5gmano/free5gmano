@@ -40,7 +40,8 @@ topology_template:
         namespace: default
         replicas: 1
         name_of_service: mongodb-svc
-        ports: 27017
+        ports:
+        - 27017
 
     CP1:
       type: tosca.nodes.nfv.Cpd
