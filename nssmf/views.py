@@ -161,7 +161,7 @@ class GenericTemplateView(MultipleSerializerViewSet):
         self.partial_update(request, *args, **kwargs)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, methods=['get'], url_path='download/(?P<path>(.)*)')
+    @action(detail=False, methods=['get'], url_path='download/(?P<example>(.)*)/(?P<path>(.)*)')
     def download(self, request, *args, **kwargs):
         """
             Download an individual Generic Template.
@@ -175,7 +175,7 @@ class GenericTemplateView(MultipleSerializerViewSet):
                 return HttpResponse(f.read(), content_type="application/zip")
         else:
             example_file = os.path.join(settings.BASE_DIR, 'nssmf', 'template_example',
-                                        'free5gc-stage-1', kwargs['path'].split('/')[0])
+                                        kwargs['example'], kwargs['path'].split('/')[0])
             os.chdir(example_file)
 
             with zipfile.ZipFile(example_file + '.zip', mode='w',
