@@ -1,0 +1,5 @@
+allocate_file: "allocate/main.py"
+deallocate_file: "deallocate/main.py"
+nm_host: '127.0.0.1:8080'
+nfvo_host: '10.0.0.15:30888'
+subscription_host: '10.0.0.15:8082'
