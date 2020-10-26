@@ -1,5 +1,5 @@
 PyYAML
-pprint
+# pprint
 jsonschema
 Django==2.2.8
 djangorestframework==3.10.1
