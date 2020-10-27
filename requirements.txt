@@ -10,3 +10,5 @@ requests==2.21.0
 django-mysql
 mysqlclient #for linux
 service_mapping_plugin_framework
+django-cors-headers
+drf-yasg
