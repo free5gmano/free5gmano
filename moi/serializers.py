@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+# from moi.models import *
 from moi.models import NetworkSliceSubnet
 from moi.models import NsInfo
 from moi.models import PLMNIdList
