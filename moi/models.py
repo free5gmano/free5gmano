@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 from django.db.models import CharField
 from django_mysql.models import ListTextField
+from moi.enums import NotificationType, MOIType
 
 # Create your models here.
 
@@ -50,9 +51,9 @@ class NsInfo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     nsInstanceName = models.TextField(null=True, blank=True)
     nsInstanceDescription = models.TextField(null=True, blank=True)
-    nsdId = models.UUIDField(null=True, blank=True)
-    nsdInfoId = models.UUIDField(null=True, blank=True)
-    flavourId = models.UUIDField(null=True, blank=True)
+    nsdId = models.TextField(null=True, blank=True)
+    nsdInfoId = models.TextField(null=True, blank=True)
+    flavourId = models.TextField(null=True, blank=True)
     vnfInstance = models.TextField(null=True, blank=True)
     vnffgInfo = models.TextField(null=True, blank=True)
     nestedNsInstanceId = models.TextField(null=True, blank=True)
@@ -132,3 +133,20 @@ class OtherFunction(models.Model):
     sBIFQDN = models.TextField()
     sBIServiceList = models.TextField()
     sNSSAIList = models.ManyToManyField(SNSSAIList, related_name='sNSSAIListId_OtherFunction')
+
+class CommonNotification(models.Model):
+    notificationId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
+    notificationType = models.CharField(max_length=255, choices=NotificationType)
+    eventTime = models.DateTimeField(auto_now=True)
+    systemDN = models.CharField(max_length=255, null=True, blank=True)
+    objectClass = models.CharField(max_length=255, choices=MOIType)
+    objectInstanceInfos = models.TextField()
+    additionalText = models.TextField()
+
+
+class Subscription(models.Model):
+    subscriptionId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
+    timeTick = models.IntegerField()
+    filter = models.ManyToManyField(CommonNotification,
+                                    related_name='Subscription_CommonNotification')
+    callbackUri = models.TextField()

@@ -38,9 +38,6 @@ topology_template:
         namespace: default
         replicas: 1
         command: [sh, -c, chmod +x /root/free5gc/setup-uptun.sh && /root/free5gc/setup-uptun.sh && /root/free5gc/install/bin/free5gc-upfd]
-        env:
-          - name: DB_URI
-            value: mongodb://mongodb-svc/free5gc
         tun: /dev/net/tun
 
     CP1:
@@ -62,6 +59,7 @@ topology_template:
     CP2:
       type: tosca.nodes.nfv.Cpd
       properties:
+        type: ovs
         layer_protocol: ipv4
       requirements:
         virtual_binding: VDU1

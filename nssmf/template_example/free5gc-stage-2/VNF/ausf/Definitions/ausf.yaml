@@ -30,11 +30,11 @@ topology_template:
         sw_image:
           type: tosca.artifacts.nfv.SwImage
           file: free5gmano/free5gc-control-plane
-        free5gc:
+        ausf:
           type: tosca.artifacts.File
           file: Files/Artifacts/ausfcfg.conf
           deploy_path: /go/src/free5gc/config/ausfcfg.conf
-        ausf:
+        free5gc:
           type: tosca.artifacts.File
           file: Files/Artifacts/free5GC.conf
           deploy_path: /go/src/free5gc/config/free5GC.conf
@@ -42,9 +42,6 @@ topology_template:
         namespace: default
         replicas: 1
         command: [sh, -c, ./bin/ausf]
-        env:
-          - name: DB_URI
-            value: mongodb://mongodb-svc/free5gc
 
     CP1:
       type: tosca.nodes.nfv.Cpd
@@ -66,6 +63,7 @@ topology_template:
     CP2:
       type: tosca.nodes.nfv.Cpd
       properties:
+        type: ovs
         layer_protocol: ipv4
       requirements:
         virtual_binding: VDU1

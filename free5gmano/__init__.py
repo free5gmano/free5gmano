@@ -17,6 +17,8 @@
 import os
 
 from free5gmano import settings
+#import pymysql
+#pymysql.install_as_MySQLdb()
 
 if not os.path.exists('/data/'):
     os.mkdir('/data/')
