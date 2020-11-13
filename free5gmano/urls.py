@@ -61,4 +61,5 @@ urlpatterns = [
     url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('', include('nssmf.urls')),
     path('', include('moi.urls')),
+    path('', include('FaultManagement.urls')),
 ]

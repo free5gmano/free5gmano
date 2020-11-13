@@ -8,5 +8,7 @@ sqlparse==0.3.0
 requests==2.21.0
 # pymysql #for windows
 django-mysql
-mysqlclient #for linux
-service_mapping_plugin_framework
+mysqlclient
+django-cors-headers
+drf-yasg
+service-mapping-plugin-framework
