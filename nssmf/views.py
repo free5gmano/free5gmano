@@ -161,32 +161,49 @@ class GenericTemplateView(MultipleSerializerViewSet):
         self.partial_update(request, *args, **kwargs)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=False, methods=['get'], url_path='download/(?P<example>(.)*)/(?P<path>(.)*)')
-    def download(self, request, *args, **kwargs):
+    @action(detail=False, methods=['get'], url_path='example_download/(?P<example>(.)*)/(?P<path>(.)*)')
+    def example_download(self, request, *args, **kwargs):
         """
             Download an individual Generic Template.
 
             The GET method reads the content of the Generic Template.
         """
         source_path = os.getcwd()
+        # download_query = self.queryset.filter(templateFile=kwargs['path'])
+        # if download_query:
+        #     with download_query[0].templateFile.open() as f:
+        #         return HttpResponse(f.read(), content_type="application/zip")
+        # else:
+        example_file = os.path.join(settings.BASE_DIR, 'nssmf', 'template_example',
+                                    kwargs['example'], kwargs['path'].split('/')[0])
+        os.chdir(example_file)
+
+        with zipfile.ZipFile(example_file + '.zip', mode='w',
+                             compression=zipfile.ZIP_DEFLATED) as zf:
+            for root, folders, files in os.walk('.'):
+                for s_file in files:
+                    a_file = os.path.join(root, s_file)
+                    zf.write(a_file)
+        os.chdir(source_path)
+        with open(example_file + '.zip', 'rb') as f:
+            return HttpResponse(f.read(), content_type="application/zip")
+
+    @action(detail=False, methods=['get'], url_path='download/(?P<path>(.)*)')
+    def download(self, request, *args, **kwargs):
+        """
+            Download an individual Generic Template.
+
+            The GET method reads the content of the Generic Template.
+        """
         download_query = self.queryset.filter(templateFile=kwargs['path'])
+        s = download_query[0].templateFile.name
+        filename = s[4:]
         if download_query:
             with download_query[0].templateFile.open() as f:
-                return HttpResponse(f.read(), content_type="application/zip")
-        else:
-            example_file = os.path.join(settings.BASE_DIR, 'nssmf', 'template_example',
-                                        kwargs['example'], kwargs['path'].split('/')[0])
-            os.chdir(example_file)
-
-            with zipfile.ZipFile(example_file + '.zip', mode='w',
-                                 compression=zipfile.ZIP_DEFLATED) as zf:
-                for root, folders, files in os.walk('.'):
-                    for s_file in files:
-                        a_file = os.path.join(root, s_file)
-                        zf.write(a_file)
-            os.chdir(source_path)
-            with open(example_file + '.zip', 'rb') as f:
-                return HttpResponse(f.read(), content_type="application/zip")
+                # return HttpResponse(f.read(), content_type="application/zip")
+                response = HttpResponse(f.read(), content_type="application/zip")
+                response['Content-Disposition'] = 'inline; filename=' + filename
+                return response
 
 
 class SliceTemplateView(MultipleSerializerViewSet):

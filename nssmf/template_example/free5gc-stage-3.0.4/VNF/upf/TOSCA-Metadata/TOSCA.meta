@@ -1,0 +1,8 @@
+TOSCA-Meta-File-Version: 1.0
+CSAR-Version: 1.1
+Created-By: IMAC
+Entry-Definitions: Definitions/upf.yaml
+ETSI-Entry-Manifest: free5gc-upf.mf
+ETSI-Entry-Change-Log: Files/ChangeLog.txt
+ETSI-Entry-Licenses: Files/Licenses
+ETSI-Entry-Artifacts: Files/Artifacts/upfcfg.conf, Files/Artifacts/free5GC.conf
