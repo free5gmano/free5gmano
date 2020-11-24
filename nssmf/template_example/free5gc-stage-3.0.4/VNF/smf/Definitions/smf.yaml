@@ -1,0 +1,79 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+topology_template:
+  node_templates:
+    VNF1:
+      type: tosca.nodes.nfv.VNF
+      properties:
+        descriptor_id: 367f45fd-1dd2-11b2-8008-080027b24smf
+        descriptor_version: 1.0
+        provider: imac
+        product_name: smf
+        software_version: latest
+
+    VDU1:
+      type: tosca.nodes.nfv.Vdu.Compute
+      properties:
+        sw_image_data:
+          name: free5gc-control-plane
+          provider: free5gmano
+          version: stage3.0.4
+          diskFormat: raw
+      capabilities:
+        virtual_compute:
+          properties:
+            virtual_memory:
+              virtual_mem_size: 512Mi
+            virtual_cpu:
+              num_virtual_cpu: 250m
+      artifacts:
+        sw_image:
+          type: tosca.artifacts.nfv.SwImage
+          file: free5gmano/free5gc-control-plane:stage3.0.4
+        smf:
+          type: tosca.artifacts.File
+          file: Files/Artifacts/smfcfg.conf
+          deploy_path: /go/src/free5gc/config/smfcfg.conf
+        free5gc:
+          type: tosca.artifacts.File
+          file: Files/Artifacts/free5GC.conf
+          deploy_path: /go/src/free5gc/config/free5GC.conf
+      attributes:
+        namespace: default
+        replicas: 1
+        command: [sh, -c, ./bin/smf]
+
+    CP1:
+      type: tosca.nodes.nfv.Cpd
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        virtual_binding: VDU1
+        virtual_link: VL1
+
+    VL1:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        network_name: management
+        vl_profile:
+          virtual_link_protocol_data:
+            l3_protocol_data:
+              dhcp_enabled: False
+
+    CP2:
+      type: tosca.nodes.nfv.Cpd
+      properties:
+        type: ovs
+        layer_protocol: ipv4
+      requirements:
+        virtual_binding: VDU1
+        virtual_link: VL2
+
+    VL2:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        network_name: ovs-net
+        vl_profile:
+          virtual_link_protocol_data:
+            l3_protocol_data:
+              cidr: 192.168.2.163/23
