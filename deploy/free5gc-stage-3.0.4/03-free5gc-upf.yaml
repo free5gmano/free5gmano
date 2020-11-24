@@ -15,7 +15,6 @@ spec:
       containers:      
       - name: free5gc-upf-container
         image: free5gmano/free5gc-user-plane:stage3.0.4
-        imagePullPolicy: Never
         securityContext:
           privileged: true
         command: ["/bin/sh"]
