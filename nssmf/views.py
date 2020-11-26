@@ -26,7 +26,8 @@ from rest_framework.response import Response
 from rest_framework import status, mixins
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 
 from nssmf.serializers import SliceTemplateSerializer, SliceTemplateRelationSerializer, \
     GenericTemplateSerializer, GenericTemplateFileSerializer, ServiceMappingPluginSerializer, \
