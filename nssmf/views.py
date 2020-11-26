@@ -36,6 +36,21 @@ from nssmf.enums import OperationStatus, PluginOperationStatus
 from free5gmano import settings
 
 
+class CustomAuthToken(ObtainAuthToken):
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return JsonResponse({
+            'token': token.key,
+            'user_id': user.pk,
+            'email': user.email
+        })
+
+
 class MultipleSerializerViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.basename == 'GenericTemplate':
@@ -130,23 +145,23 @@ class GenericTemplateView(MultipleSerializerViewSet):
         generic_template_obj = self.get_object()
         # Delete old Content related
         for relate_obj in self.get_object().content_set.all():
+            file = self.get_object().templateFile
+            file.delete()
             self.get_object().content_set.remove(relate_obj)
-
+            
         with zipfile.ZipFile(request.data['templateFile']) as _zipfile:
             for element in _zipfile.namelist():
                 if '.yaml' in element:
                     with _zipfile.open(element) as file:
                         content = yaml.load(file, Loader=yaml.FullLoader)
-                        filename = element
+                        content_obj = Content(type=self.get_object().templateType,
+                                              tosca_definitions_version=content['tosca_definitions_version'],
+                                              topology_template=str(content['topology_template']))
                     # check_result = self.check(request, content, filename)
 
                     # if check_result:
                     #     return Response(check_result, status=400)
 
-                    content_obj = Content(type=self.get_object().templateType,
-                                          tosca_definitions_version=content[
-                                              'tosca_definitions_version'],
-                                          topology_template=str(content['topology_template']))
                     content_obj.save()
                     generic_template_obj.content_set.add(content_obj)
                 elif '.json' in element:
@@ -293,16 +308,15 @@ class ProvisioningView(GenericViewSet, mixins.CreateModelMixin, mixins.DestroyMo
                     service_plugin['name'],
                     service_plugin['allocate_nssi'].split('/')[0],
                     service_plugin['allocate_nssi'].split('/')[1].split('.')[0]))
-
-            nfvo_plugin = plugin.NFVOPlugin(service_plugin['nm_host'],
-                                            service_plugin['nfvo_host'],
-                                            service_plugin['subscription_host'],
-                                            parameter)
+            nfvo_plugin = plugin.NFVOPlugin(
+                        service_plugin['nm_host'],
+                        service_plugin['nfvo_host'],
+                        service_plugin['subscription_host'],
+                        parameter)
             nfvo_plugin.allocate_nssi()
             unit_query.instanceId.add(nfvo_plugin.nssiId)
             return JsonResponse(nfvo_plugin.moi_config)
         except IOError as e:
-            print(e)
             return JsonResponse(response_data, status=400)
 
     def destroy(self, request, *args, **kwargs):
@@ -341,7 +355,6 @@ class ProvisioningView(GenericViewSet, mixins.CreateModelMixin, mixins.DestroyMo
                 return JsonResponse(response_data, status=400)
         except TypeError:
             return JsonResponse(response_data, status=400)
-
 
 class ServiceMappingPluginView(ModelViewSet):
     """ Service Mapping Plugin framework
@@ -391,7 +404,6 @@ class ServiceMappingPluginView(ModelViewSet):
         """
         self_object = self.get_object()
         file = self_object.pluginFile
-        print(file)
         if file:
             file_folder = os.path.join(
                 settings.PLUGIN_ROOT,
