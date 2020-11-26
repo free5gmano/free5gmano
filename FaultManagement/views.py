@@ -178,3 +178,4 @@ class FaultSupervisionSubscriptionsView(GenericViewSet,
                 'status': 'OperationFailed'
             }
             return Response(response)
+

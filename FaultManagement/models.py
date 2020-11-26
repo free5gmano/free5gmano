@@ -150,8 +150,8 @@ class AlarmsCount(models.Model):
 
 # class FailedAlarmsResponse(models.Model):
 #     # error [{
-#     # alarmId	alarmId-Typestring
-#     # errorReason	string
+#     # alarmId alarmId-Typestring
+#     # errorReason string
 #     #
 #     # }]
 #
@@ -221,14 +221,6 @@ class AlarmsCount(models.Model):
 #
 #
 # class NotifyChangedAlarm(models.Model):
-#     header = models.ForeignKey(Header)
-#     alarmId = models.CharField(max_length=255)
-#     alarmType = models.ForeignKey(AlarmType)
-#     probableCause = models.CharField(max_length=255)
-#     perceivedSeverity = models.CharField(max_length=255, choices=PerceivedSeverity)
-
-
-# class notifyChangedAlarmGeneral(models.Model):
 #     header = models.ForeignKey(Header)
 #     alarmId = models.CharField(max_length=255)
 #     alarmType = models.ForeignKey(AlarmType)
