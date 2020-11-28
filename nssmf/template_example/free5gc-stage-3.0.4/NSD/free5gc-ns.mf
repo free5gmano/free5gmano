@@ -1,0 +1,6 @@
+metadata:
+nsd_designer: imac 
+nsd_invariant_id: 1111-2222-aaaa-bbbb 
+nsd_name: free5gc-stage3.0.4 
+nsd_file_structure_version: 1.0
+nsd_release_date_time: 2018-04-08T10:00+08:00 

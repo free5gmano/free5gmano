@@ -1,7 +1,7 @@
 from django.conf.urls import url
 from django.urls import include
 
-from moi.views import ObjectManagement
+from moi.views import ObjectManagement, SubscriptionView, NotificationView
 from moi.routers import CustomReadOnlyRouter
 
 moi_view = ObjectManagement.as_view({
@@ -11,6 +11,10 @@ moi_view = ObjectManagement.as_view({
             'delete': 'delete_moi'
             })
 router = CustomReadOnlyRouter()
+router.register(r'ObjectManagement/subscriptions', SubscriptionView,
+                basename='Subscription')
+router.register(r'ObjectManagement/provisioningNotifications', NotificationView,
+                basename='Notification')
 
 urlpatterns = [
     url(r'^', include(router.urls)),
