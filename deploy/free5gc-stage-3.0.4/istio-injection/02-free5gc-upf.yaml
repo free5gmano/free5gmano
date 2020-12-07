@@ -28,6 +28,8 @@ spec:
   replicas: 1
   template:
     metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
       labels:
         app: free5gc-upf
     spec:
@@ -38,8 +40,8 @@ spec:
         securityContext:
           privileged: true
         command: ["/bin/sh"]
-        # args: ["-c", "ip addr add 60.60.0.100 dev lo && ip link set dev lo up && ./bin/free5gc-upfd"]
-        args: ["-c", "sleep 10s && ./bin/free5gc-upfd"]
+        args: ["-c", "sleep 10s && ip addr add 60.60.0.100 dev lo && ip link set dev lo up && ./bin/free5gc-upfd"]
+        # args: ["-c", "sleep 10s && ./bin/free5gc-upfd"]
         volumeMounts:
         - mountPath: /dev/net/tun
           name: tun-volume
