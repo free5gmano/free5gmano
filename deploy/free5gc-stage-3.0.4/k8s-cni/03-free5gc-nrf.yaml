@@ -28,7 +28,7 @@ spec:
       containers:      
       - name: myapp-container
         image: free5gmano/free5gc-control-plane:stage3.0.4
-        imagePullPolicy: Never
+        imagePullPolicy: IfNotPresent
         command: ["/bin/sh"]
         args: ["-c", "sleep 10s && ./bin/nrf"]
         volumeMounts:

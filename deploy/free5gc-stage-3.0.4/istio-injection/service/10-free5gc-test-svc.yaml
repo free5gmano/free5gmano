@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: free5gc-test-svc
+spec:
+  selector:
+    app: free5gc-test
+  ports:
+    - name: udp
+      protocol: UDP
+      port: 9487
+    - name: sctp
+      protocol: SCTP
+      port: 2152

@@ -1,0 +1,775 @@
+apiVersion: v1
+data:
+  free5GC.conf: |
+    db_uri: mongodb://mongodb-svc:27017/free5GC
+
+    #all logging levels
+    #panic
+    #fatal
+    #error
+    #warn
+    #info
+    #debug
+    #trace
+    logger:
+    # network function
+      AMF:
+        debugLevel: info
+        ReportCaller: true
+      SMF:
+        debugLevel: info
+        ReportCaller: true
+      UDR:
+        debugLevel: info
+        ReportCaller: true
+      UDM:
+        debugLevel: info
+        ReportCaller: true
+      NRF:
+        debugLevel: info
+        ReportCaller: true
+      PCF:
+        debugLevel: info
+        ReportCaller: true
+      AUSF:
+        debugLevel: info
+        ReportCaller: true
+      N3IWF:
+        debugLevel: info
+        ReportCaller: true
+    # library
+      NAS:
+        debugLevel: info
+        ReportCaller: true
+      FSM:
+        debugLevel: info
+        ReportCaller: true
+      NGAP:
+        debugLevel: info
+        ReportCaller: true
+      NamfComm:
+        debugLevel: info
+        ReportCaller: true
+      NamfEventExposure:
+        debugLevel: info
+        ReportCaller: true
+      NsmfPDUSession:
+        debugLevel: info
+        ReportCaller: true
+      NudrDataRepository:
+        debugLevel: info
+        ReportCaller: true
+      OpenApi:
+        debugLevel: info
+        ReportCaller: true
+      Aper:
+        debugLevel: info
+        ReportCaller: true
+      CommonConsumerTest:
+        debugLevel: info
+        ReportCaller: true
+    # webui
+      WEBUI:
+        debugLevel: info
+        ReportCaller: true
+
+  amfcfg.conf: |
+    info:
+      version: 1.0.0
+      description: AMF initial local configuration
+
+    configuration:
+      amfName: AMF
+      ngapIpList:
+        - # free5gc-amf-svc
+      sbi:
+        scheme: http
+        registerIPv4: free5gc-amf-svc # 10.96.100.2 # IP used to register to NRF
+        bindingIPv4: free5gc-amf-svc  # IP used to bind the service
+        port: 29518
+      serviceNameList:
+        - namf-comm
+        - namf-evts
+        - namf-mt
+        - namf-loc
+        - namf-oam
+      servedGuamiList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          amfId: cafe00
+      supportTaiList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          tac: 1
+      plmnSupportList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          snssaiList:
+            - sst: 1
+              sd: 010203
+            - sst: 1
+              sd: 112233
+      supportDnnList:
+        - internet
+      nrfUri: http://free5gc-nrf-svc:29510
+      security:
+        integrityOrder:
+          - NIA0
+          - NIA2
+        cipheringOrder:
+          - NEA0
+          - NEA2
+      networkName:
+        full: free5GC
+        short: free
+      t3502: 720
+      t3512: 3600
+      non3gppDeregistrationTimer: 3240
+
+  smfcfg.conf: |
+    info:
+      version: 1.0.0
+      description:  initial local configuration
+
+    configuration:
+      smfName: SMF
+      sbi:
+        scheme: http
+        registerIPv4: free5gc-smf-svc # 10.96.100.3 # IP used to register to NRF
+        bindingIPv4: free5gc-smf-svc  # IP used to bind the service
+        port: 29502
+        tls:
+          key: free5gc/support/TLS/smf.key
+          pem: free5gc/support/TLS/smf.pem
+      serviceNameList:
+        - nsmf-pdusession
+        - nsmf-event-exposure
+        - nsmf-oam
+      snssai_info:
+        - sNssai:
+            sst: 1
+            sd: 010203
+          dnnSmfInfoList:
+            - dnn: internet
+        - sNssai:
+            sst: 1
+            sd: 112233
+          dnnSmfInfoList:
+            - dnn: internet
+      pfcp:
+        addr: free5gc-smf-svc 
+      userplane_information:
+        up_nodes:
+          gNB1:
+            type: AN
+            an_ip: free5gc-test-svc # 10.96.100.50
+          BranchingUPF:
+            type: UPF
+            node_id: 10.42.0.159 # free5gc-upf-svc # 10.96.100.10
+          AnchorUPF1:
+            type: UPF
+            node_id: 10.42.0.156
+          AnchorUPF2:
+            type: UPF
+            node_id: 10.42.0.155
+        links:
+          - A: gNB1
+            B: BranchingUPF
+          - A: BranchingUPF
+            B: AnchorUPF1
+          - A: BranchingUPF
+            B: AnchorUPF2
+      ue_subnet: 60.60.0.0/16
+      dnn:
+        internet:
+          dns:
+            ipv4: 8.8.8.8
+            ipv6: 2001:4860:4860::8888
+        internet2:
+          dns:
+            ipv4: 8.8.4.4
+            ipv6: 2001:4860:4860::8844
+      nrfUri: http://free5gc-nrf-svc:29510
+      ulcl: true
+
+  ausfcfg.conf: |
+    info:
+      version: 1.0.0
+      description: AUSF initial local configuration
+
+    configuration:
+      sbi:
+        scheme: http
+        registerIPv4: free5gc-ausf-svc # 10.96.100.4 # IP used to register to NRF
+        bindingIPv4: free5gc-ausf-svc # IP used to bind the service
+        port: 29509
+      serviceNameList:
+        - nausf-auth
+      nrfUri: http://free5gc-nrf-svc:29510
+      plmnSupportList:
+        - mcc: 208
+          mnc: 93
+        - mcc: 123
+          mnc: 45
+      groupId: ausfGroup001
+
+  nrfcfg.conf: |
+    info:
+      version: 1.0.0
+      description: NRF initial local configuration
+
+    configuration:
+      MongoDBName: "free5gc"
+      MongoDBUrl: "mongodb://mongodb-svc:27017"
+      DefaultServiceIP: "free5gc-nrf-svc"
+      sbi:
+        scheme: http
+        ipv4Addr: free5gc-nrf-svc
+        port: 29510
+      DefaultPlmnId:
+        mcc: "208"
+        mnc: "93"
+      serviceNameList:
+        - nnrf-nfm
+        - nnrf-disc
+
+  nssfcfg.conf: |
+    info:
+      version: 1.0.0
+      description: NSSF initial local configuration
+
+    configuration:
+      nssfName: NSSF
+      sbi:
+        scheme: http
+        registerIPv4: free5gc-nssf-svc # 10.96.100.6 # IP used to register to NRF
+        bindingIPv4: free5gc-nssf-svc  # IP used to bind the service
+        port: 29531
+      serviceNameList:
+        - nnssf-nsselection
+        - nnssf-nssaiavailability
+      nrfUri: http://free5gc-nrf-svc:29510
+      supportedPlmnList:
+        - mcc: 208
+          mnc: 93
+      supportedNssaiInPlmnList:
+        - plmnId:
+            mcc: 208
+            mnc: 93
+          supportedSnssaiList:
+            - sst: 1
+              sd: 010203
+            - sst: 1
+              sd: 112233
+            - sst: 1
+              sd: 3
+            - sst: 2
+              sd: 1
+            - sst: 2
+              sd: 2
+      nsiList:
+        - snssai:
+            sst: 1
+          nsiInformationList:
+            - nrfId: http://localhost:29510/nnrf-nfm/v1/nf-instances
+              nsiId: 10
+        - snssai:
+            sst: 1
+            sd: 1
+          nsiInformationList:
+            - nrfId: http://localhost:29510/nnrf-nfm/v1/nf-instances
+              nsiId: 11
+        - snssai:
+            sst: 1
+            sd: 2
+          nsiInformationList:
+            - nrfId: http://localhost:29510/nnrf-nfm/v1/nf-instances
+              nsiId: 12
+            - nrfId: http://localhost:29510/nnrf-nfm/v1/nf-instances
+              nsiId: 12
+        - snssai:
+            sst: 1
+            sd: 3
+          nsiInformationList:
+            - nrfId: http://localhost:29510/nnrf-nfm/v1/nf-instances
+              nsiId: 13
+        - snssai:
+            sst: 2
+          nsiInformationList:
+            - nrfId: http://localhost:29510/nnrf-nfm/v1/nf-instances
+              nsiId: 20
+        - snssai:
+            sst: 2
+            sd: 1
+          nsiInformationList:
+            - nrfId: http://localhost:29510/nnrf-nfm/v1/nf-instances
+              nsiId: 21
+        - snssai:
+            sst: 1
+            sd: 010203
+          nsiInformationList:
+            - nrfId: http://free5gc-nrf-svc:29510/nnrf-nfm/v1/nf-instances
+              nsiId: 22
+      amfSetList:
+        - amfSetId: 1
+          amfList:
+            - ffa2e8d7-3275-49c7-8631-6af1df1d9d26
+            - 0e8831c3-6286-4689-ab27-1e2161e15cb1
+            - a1fba9ba-2e39-4e22-9c74-f749da571d0d
+          nrfAmfSet: http://localhost:8081/nnrf-nfm/v1/nf-instances
+          supportedNssaiAvailabilityData:
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33456
+              supportedSnssaiList:
+                - sst: 1
+                  sd: 1
+                - sst: 1
+                  sd: 2
+                - sst: 2
+                  sd: 1
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33457
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 1
+                  sd: 2
+        - amfSetId: 2
+          nrfAmfSet: http://localhost:8084/nnrf-nfm/v1/nf-instances
+          supportedNssaiAvailabilityData:
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33456
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 1
+                  sd: 3
+                - sst: 2
+                  sd: 1
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33458
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 2
+      amfList:
+        - nfId: 469de254-2fe5-4ca0-8381-af3f500af77c
+          supportedNssaiAvailabilityData:
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33456
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 2
+                - sst: 2
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33457
+              supportedSnssaiList:
+                - sst: 1
+                  sd: 1
+                - sst: 1
+                  sd: 2
+        - nfId: fbe604a8-27b2-417e-bd7c-8a7be2691f8d
+          supportedNssaiAvailabilityData:
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33458
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 1
+                  sd: 3
+                - sst: 2
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33459
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 2
+                - sst: 2
+                  sd: 1
+        - nfId: b9e6e2cb-5ce8-4cb6-9173-a266dd9a2f0c
+          supportedNssaiAvailabilityData:
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33456
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 1
+                  sd: 2
+                - sst: 2
+            - tai:
+                plmnId:
+                  mcc: 466
+                  mnc: 92
+                tac: 33458
+              supportedSnssaiList:
+                - sst: 1
+                - sst: 1
+                  sd: 1
+                - sst: 2
+                - sst: 2
+                  sd: 1
+      taList:
+        - tai:
+            plmnId:
+              mcc: 466
+              mnc: 92
+            tac: 33456
+          accessType: 3GPP_ACCESS
+          supportedSnssaiList:
+            - sst: 1
+            - sst: 1
+              sd: 1
+            - sst: 1
+              sd: 2
+            - sst: 2
+        - tai:
+            plmnId:
+              mcc: 466
+              mnc: 92
+            tac: 33457
+          accessType: 3GPP_ACCESS
+          supportedSnssaiList:
+            - sst: 1
+            - sst: 1
+              sd: 1
+            - sst: 1
+              sd: 2
+            - sst: 2
+        - tai:
+            plmnId:
+              mcc: 466
+              mnc: 92
+            tac: 33458
+          accessType: 3GPP_ACCESS
+          supportedSnssaiList:
+            - sst: 1
+            - sst: 1
+              sd: 1
+            - sst: 1
+              sd: 3
+            - sst: 2
+          restrictedSnssaiList:
+            - homePlmnId:
+                mcc: 310
+                mnc: 560
+              sNssaiList:
+                - sst: 1
+                  sd: 3
+        - tai:
+            plmnId:
+              mcc: 466
+              mnc: 92
+            tac: 33459
+          accessType: 3GPP_ACCESS
+          supportedSnssaiList:
+            - sst: 1
+            - sst: 1
+              sd: 1
+            - sst: 2
+            - sst: 2
+              sd: 1
+          restrictedSnssaiList:
+            - homePlmnId:
+                mcc: 310
+                mnc: 560
+              sNssaiList:
+                - sst: 2
+                  sd: 1
+      mappingListFromPlmn:
+        - operatorName: NTT Docomo
+          homePlmnId:
+            mcc: 440
+            mnc: 10
+          mappingOfSnssai:
+            - servingSnssai:
+                sst: 1
+                sd: 1
+              homeSnssai:
+                sst: 1
+                sd: 1
+            - servingSnssai:
+                sst: 1
+                sd: 2
+              homeSnssai:
+                sst: 1
+                sd: 3
+            - servingSnssai:
+                sst: 1
+                sd: 3
+              homeSnssai:
+                sst: 1
+                sd: 4
+            - servingSnssai:
+                sst: 2
+                sd: 1
+              homeSnssai:
+                sst: 2
+                sd: 2
+        - operatorName: AT&T Mobility
+          homePlmnId:
+            mcc: 310
+            mnc: 560
+          mappingOfSnssai:
+            - servingSnssai:
+                sst: 1
+                sd: 1
+              homeSnssai:
+                sst: 1
+                sd: 2
+            - servingSnssai:
+                sst: 1
+                sd: 2
+              homeSnssai:
+                sst: 1
+                sd: 3
+
+  pcfcfg.conf: |
+    info:
+      version: 1.0.0
+      description: PCF initial local configuration
+
+    configuration:
+      pcfName: PCF
+      sbi:
+        scheme: http
+        registerIPv4: free5gc-pcf-svc # 10.96.100.9 # IP used to register to NRF
+        bindingIPv4: free5gc-pcf-svc  # IP used to bind the service
+        port: 29507
+      timeFormat: 2019-01-02 15:04:05
+      defaultBdtRefId: BdtPolicyId-
+      nrfUri: http://free5gc-nrf-svc:29510
+      serviceList:
+        - serviceName: npcf-am-policy-control
+        - serviceName: npcf-smpolicycontrol
+          suppFeat: 3fff
+        - serviceName: npcf-bdtpolicycontrol
+        - serviceName: npcf-policyauthorization
+          suppFeat: 3
+        - serviceName: npcf-eventexposure
+        - serviceName: npcf-ue-policy-control
+
+  udmcfg.conf: |
+    info:
+      version: 1.0.0
+      description: UDM initial local configuration
+
+    configuration:
+      serviceNameList:
+        - nudm-sdm
+        - nudm-uecm
+        - nudm-ueau
+        - nudm-ee
+        - nudm-pp
+      sbi:
+        scheme: http
+        registerIPv4: free5gc-udm-svc # IP used to register to NRF
+        bindingIPv4: free5gc-udm-svc  # IP used to bind the service
+        port: 29503
+        tls:
+          log: free5gc/udmsslkey.log
+          pem: free5gc/support/TLS/udm.pem
+          key: free5gc/support/TLS/udm.key
+      
+      udrclient:
+        scheme: http
+        ipv4Addr: free5gc-udr-svc
+        port: 29504
+
+      nrfclient:
+        scheme: http
+        ipv4Addr: free5gc-nrf-svc
+        port: 29510
+      nrfUri: http://free5gc-nrf-svc:29510
+
+      # test data set from TS33501-f60 Annex C.4
+      # udmProfileAHNPublicKey: 5a8d38864820197c3394b92613b20b91633cbd897119273bf8e4a6f4eec0a650
+      # udmProfileAHNPrivateKey: c53c22208b61860b06c62e5406a7b330c2b577aa5558981510d128247d38bd1d
+      # udmProfileBHNPublicKey: 0472DA71976234CE833A6907425867B82E074D44EF907DFB4B3E21C1C2256EBCD15A7DED52FCBB097A4ED250E036C7B9C8C7004C4EEDC4F068CD7BF8D3F900E3B4
+      # udmProfileBHNPrivateKey: F1AB1074477EBCC7F554EA1C5FC368B1616730155E0041AC447D6301975FECDA
+      keys:
+        udmProfileAHNPublicKey: 5a8d38864820197c3394b92613b20b91633cbd897119273bf8e4a6f4eec0a650
+        udmProfileAHNPrivateKey: c53c22208b61860b06c62e5406a7b330c2b577aa5558981510d128247d38bd1d
+        udmProfileBHNPublicKey: 0472DA71976234CE833A6907425867B82E074D44EF907DFB4B3E21C1C2256EBCD15A7DED52FCBB097A4ED250E036C7B9C8C7004C4EEDC4F068CD7BF8D3F900E3B4
+        udmProfileBHNPrivateKey: F1AB1074477EBCC7F554EA1C5FC368B1616730155E0041AC447D6301975FECDA
+
+  udrcfg.conf: |
+    info:
+      version: 1.0.0
+      description: UDR initial local configuration
+
+    configuration:
+      sbi:
+        scheme: http
+        registerIPv4: free5gc-udr-svc # 10.96.100.8 # IP used to register to NRF
+        bindingIPv4: free5gc-udr-svc  # IP used to bind the service
+        port: 29504
+      mongodb:
+        name: free5gc
+        url: mongodb://mongodb-svc:27017
+      nrfUri: http://free5gc-nrf-svc:29510
+
+  upfcfg.yaml: |
+    info:
+      version: 1.0.0
+      description: UPF configuration
+
+    configuration:
+      # debugLevel: panic|fatal|error|warn|info|debug|trace
+      debugLevel: info
+      # ReportCaller: true|false
+      ReportCaller: false
+
+      pfcp:
+        - addr: free5gc-upf-svc
+
+      gtpu:
+        - addr: free5gc-upf-svc
+        # [optional] gtpu.name
+        # - name: free5gc-upf-svc
+        # [optional] gtpu.ifname
+        # - ifname: upfgtp
+
+      dnn_list:
+        - dnn: intranet
+          cidr: 60.60.0.0/24
+          # [optional] dnn_list[*].natifname
+          # natifname: eth0
+
+  anchor1-upfcfg.yaml: |
+    info:
+      version: 1.0.0
+      description: UPF configuration
+
+    configuration:
+      # debugLevel: panic|fatal|error|warn|info|debug|trace
+      debugLevel: info
+      # ReportCaller: true|false
+      ReportCaller: false
+
+      pfcp:
+        - addr: free5gc-anchor1-upf-svc
+
+      gtpu:
+        - addr: free5gc-anchor1-upf-svc
+        # [optional] gtpu.name
+        # - name: free5gc-upf-svc
+        # [optional] gtpu.ifname
+        # - ifname: upfgtp
+
+      dnn_list:
+        - dnn: internet
+          cidr: 60.60.0.0/24
+          # [optional] dnn_list[*].natifname
+          # natifname: eth0 
+
+  anchor2-upfcfg.yaml: |
+    info:
+      version: 1.0.0
+      description: UPF configuration
+
+    configuration:
+      # debugLevel: panic|fatal|error|warn|info|debug|trace
+      debugLevel: info
+      # ReportCaller: true|false
+      ReportCaller: false
+
+      pfcp:
+        - addr: free5gc-anchor2-upf-svc
+
+      gtpu:
+        - addr: free5gc-anchor2-upf-svc
+        # [optional] gtpu.name
+        # - name: free5gc-upf-svc
+        # [optional] gtpu.ifname
+        # - ifname: upfgtp
+
+      dnn_list:
+        - dnn: internet
+          cidr: 60.60.0.0/24
+          # [optional] dnn_list[*].natifname
+          # natifname: eth0 
+    
+  uerouting.yaml: |
+    info:
+      version: 1.0.0
+      description: Routing information for UE
+
+    ueRoutingInfo:
+      - SUPI: imsi-2089300007487
+        AN: free5gc-upf-svc # 10.96.100.10
+        PathList:
+          - DestinationIP: 60.60.0.101
+            UPF: !!seq
+              - BranchingUPF
+              - AnchorUPF1
+
+          - DestinationIP: 60.60.0.102
+            UPF: !!seq
+              - BranchingUPF
+              - AnchorUPF2
+
+      - SUPI: imsi-2089300007486
+        AN: 10.200.200.102
+        PathList:
+          - DestinationIP: 10.0.0.10
+            UPF: !!seq
+              - BranchingUPF
+              - AnchorUPF1
+
+          - DestinationIP: 10.0.0.11
+            UPF: !!seq
+              - BranchingUPF
+              - AnchorUPF2
+
+    routeProfile:
+      MEC1:
+        forwardingPolicyID: 10
+
+    pfdDataForApp:
+      - applicationId: edge
+        pfds:
+          - pfdID: pfd1
+            flowDescriptions:
+              - permit out ip from 60.60.0.1 8080 to any
+
+kind: ConfigMap
+metadata:
+  name: free5gc-configmap
+

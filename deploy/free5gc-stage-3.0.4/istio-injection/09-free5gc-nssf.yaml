@@ -5,7 +5,6 @@ metadata:
 spec:
   selector:
     app: free5gc-nssf
-  clusterIP: None # 10.96.100.6
   ports:
     - name: sbi
       protocol: TCP
@@ -28,7 +27,7 @@ spec:
       containers:      
       - name: myapp-container
         image: free5gmano/free5gc-control-plane:stage3.0.4
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Never
         command: ["/bin/sh"]
         args: ["-c", "sleep 10s && ./bin/nssf"]
         volumeMounts:
