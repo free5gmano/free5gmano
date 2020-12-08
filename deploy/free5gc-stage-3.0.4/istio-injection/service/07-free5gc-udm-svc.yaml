@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: free5gc-udm-svc
+spec:
+  selector:
+    app: free5gc-udm
+  ports:
+    - name: sbi
+      protocol: TCP
+      port: 29503
+      
