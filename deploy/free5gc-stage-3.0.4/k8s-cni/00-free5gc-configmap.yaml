@@ -81,7 +81,7 @@ data:
     configuration:
       amfName: AMF
       ngapIpList:
-        - # free5gc-amf-svc
+        - free5gc-amf-svc
       sbi:
         scheme: http
         registerIPv4: free5gc-amf-svc # 10.96.100.2 # IP used to register to NRF
@@ -117,11 +117,11 @@ data:
       nrfUri: http://free5gc-nrf-svc:29510
       security:
         integrityOrder:
-          - NIA0
+          # - NIA0
           - NIA2
         cipheringOrder:
           - NEA0
-          - NEA2
+          # - NEA2
       networkName:
         full: free5GC
         short: free
@@ -705,6 +705,16 @@ data:
           - pfdID: pfd1
             flowDescriptions:
               - permit out ip from 60.60.0.1 8080 to any
+
+  webuicfg.conf: |
+    info:
+      version: 1.0.0
+      description: WebUI initial local configuration
+
+    configuration:
+      mongodb:
+        name: free5gc
+        url: mongodb://mongodb-svc:27017
 
 kind: ConfigMap
 metadata:
