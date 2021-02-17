@@ -7,11 +7,11 @@ spec:
     app: free5gc-test
   clusterIP: None # 10.96.100.50
   ports:
-    - name: udp
-      protocol: UDP
-      port: 9487
     - name: sctp
       protocol: SCTP
+      port: 9487
+    - name: udp
+      protocol: UDP
       port: 2152
 ---
 apiVersion: apps/v1 
