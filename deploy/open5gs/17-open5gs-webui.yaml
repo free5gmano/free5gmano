@@ -1,0 +1,35 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: open5gs-webui-svc
+spec:
+  selector:
+    app: open5gs-webui
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 3000
+    nodePort: 30001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open5gs-webui-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-webui
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-webui
+    spec:
+      containers:
+      - name: open5gs-webui
+        command: ["/bin/bash", "-c"]
+        args: ["npm run start"]
+        image: free5gmano/open5gs-webui:v2.1.7
+        env:
+        - name: DB_URI
+          value: "mongodb://mongodb-svc/open5gs"

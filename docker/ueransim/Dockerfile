@@ -12,9 +12,9 @@ RUN make
 RUN make install
 
 WORKDIR /
-RUN wget https://github.com/aligungr/UERANSIM/archive/v3.0.2.tar.gz
-RUN tar -zxvf v3.0.2.tar.gz
-RUN mv UERANSIM-3.0.2 UERANSIM
+RUN wget https://github.com/aligungr/UERANSIM/archive/v3.1.0.tar.gz
+RUN tar -zxvf v3.1.0.tar.gz
+RUN mv UERANSIM-3.1.0 UERANSIM
 
 WORKDIR /UERANSIM
 RUN make

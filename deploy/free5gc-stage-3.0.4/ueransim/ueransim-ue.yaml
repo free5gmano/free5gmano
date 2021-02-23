@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ueramsim-ue-deployment
+  name: ueransim-ue-deployment
   labels:
-    app: ueramsim-ue
+    app: ueransim-ue
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ueramsim-ue
+      app: ueransim-ue
   template:
     metadata:
       labels:
-        app: ueramsim-ue
+        app: ueransim-ue
     spec:
       containers:
       - name: ueransim-ue
@@ -21,7 +21,7 @@ spec:
         securityContext:
           privileged: true
         command: ["/bin/bash", "-c"]
-        args: ["sleep 365d"]
+        args: ["./build/nr-ue -c ./config/free5gc-ue.yaml"]
         volumeMounts:
         - mountPath: /dev/net/tun
           name: tun-volume
