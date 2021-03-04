@@ -1,0 +1,19 @@
+FROM ubuntu:20.04
+
+RUN apt-get update && apt-get install curl wget -y
+
+WORKDIR /
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+
+RUN apt install nodejs -y
+
+RUN wget https://github.com/open5gs/open5gs/archive/v2.1.7.tar.gz
+RUN tar -zxvf v2.1.7.tar.gz 
+RUN mv open5gs-2.1.7 open5gs
+
+WORKDIR /open5gs/webui
+RUN npm install && npm run build
+
+CMD npm run start
+
+EXPOSE 3000

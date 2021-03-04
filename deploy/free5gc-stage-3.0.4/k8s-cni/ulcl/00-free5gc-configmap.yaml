@@ -81,11 +81,11 @@ data:
     configuration:
       amfName: AMF
       ngapIpList:
-        - 192.168.2.162
+        - # free5gc-amf-svc
       sbi:
         scheme: http
-        registerIPv4: 192.168.2.162 # IP used to register to NRF
-        bindingIPv4: 192.168.2.162  # IP used to bind the service
+        registerIPv4: free5gc-amf-svc # 10.96.100.2 # IP used to register to NRF
+        bindingIPv4: free5gc-amf-svc  # IP used to bind the service
         port: 29518
       serviceNameList:
         - namf-comm
@@ -114,20 +114,21 @@ data:
               sd: 112233
       supportDnnList:
         - internet
-      nrfUri: http://192.168.2.165:29510
+      nrfUri: http://free5gc-nrf-svc:29510
       security:
         integrityOrder:
-          # - NIA0
+          - NIA0
           - NIA2
         cipheringOrder:
           - NEA0
-          # - NEA2
+          - NEA2
       networkName:
         full: free5GC
         short: free
       t3502: 720
       t3512: 3600
       non3gppDeregistrationTimer: 3240
+
   smfcfg.conf: |
     info:
       version: 1.0.0
@@ -137,8 +138,8 @@ data:
       smfName: SMF
       sbi:
         scheme: http
-        registerIPv4: 192.168.2.163 # IP used to register to NRF
-        bindingIPv4: 192.168.2.163  # IP used to bind the service
+        registerIPv4: free5gc-smf-svc # 10.96.100.3 # IP used to register to NRF
+        bindingIPv4: free5gc-smf-svc  # IP used to bind the service
         port: 29502
         tls:
           key: free5gc/support/TLS/smf.key
@@ -159,19 +160,28 @@ data:
           dnnSmfInfoList:
             - dnn: internet
       pfcp:
-        addr: 192.168.2.163
+        addr: free5gc-smf-svc 
       userplane_information:
         up_nodes:
           gNB1:
             type: AN
-            an_ip: 192.168.2.210
-          UPF:
+            an_ip: free5gc-test-svc # 10.96.100.50
+          BranchingUPF:
             type: UPF
-            node_id: 192.168.2.160
-          
+            node_id: 10.42.0.159 # free5gc-upf-svc # 10.96.100.10
+          AnchorUPF1:
+            type: UPF
+            node_id: 10.42.0.156
+          AnchorUPF2:
+            type: UPF
+            node_id: 10.42.0.155
         links:
           - A: gNB1
-            B: UPF
+            B: BranchingUPF
+          - A: BranchingUPF
+            B: AnchorUPF1
+          - A: BranchingUPF
+            B: AnchorUPF2
       ue_subnet: 60.60.0.0/16
       dnn:
         internet:
@@ -182,8 +192,8 @@ data:
           dns:
             ipv4: 8.8.4.4
             ipv6: 2001:4860:4860::8844
-      nrfUri: http://192.168.2.165:29510
-
+      nrfUri: http://free5gc-nrf-svc:29510
+      ulcl: true
 
   ausfcfg.conf: |
     info:
@@ -193,12 +203,12 @@ data:
     configuration:
       sbi:
         scheme: http
-        registerIPv4: 192.168.2.164 # IP used to register to NRF
-        bindingIPv4: 192.168.2.164  # IP used to bind the service
+        registerIPv4: free5gc-ausf-svc # 10.96.100.4 # IP used to register to NRF
+        bindingIPv4: free5gc-ausf-svc # IP used to bind the service
         port: 29509
       serviceNameList:
         - nausf-auth
-      nrfUri: http://192.168.2.165:29510
+      nrfUri: http://free5gc-nrf-svc:29510
       plmnSupportList:
         - mcc: 208
           mnc: 93
@@ -214,10 +224,10 @@ data:
     configuration:
       MongoDBName: "free5gc"
       MongoDBUrl: "mongodb://mongodb-svc:27017"
-      DefaultServiceIP: "192.168.2.165"
+      DefaultServiceIP: "free5gc-nrf-svc"
       sbi:
         scheme: http
-        ipv4Addr: 192.168.2.165
+        ipv4Addr: free5gc-nrf-svc
         port: 29510
       DefaultPlmnId:
         mcc: "208"
@@ -225,6 +235,7 @@ data:
       serviceNameList:
         - nnrf-nfm
         - nnrf-disc
+
   nssfcfg.conf: |
     info:
       version: 1.0.0
@@ -234,13 +245,13 @@ data:
       nssfName: NSSF
       sbi:
         scheme: http
-        registerIPv4: 192.168.2.166 # IP used to register to NRF
-        bindingIPv4: 192.168.2.166  # IP used to bind the service
+        registerIPv4: free5gc-nssf-svc # 10.96.100.6 # IP used to register to NRF
+        bindingIPv4: free5gc-nssf-svc  # IP used to bind the service
         port: 29531
       serviceNameList:
         - nnssf-nsselection
         - nnssf-nssaiavailability
-      nrfUri: http://192.168.2.165:29510
+      nrfUri: http://free5gc-nrf-svc:29510
       supportedPlmnList:
         - mcc: 208
           mnc: 93
@@ -300,7 +311,7 @@ data:
             sst: 1
             sd: 010203
           nsiInformationList:
-            - nrfId: http://192.168.2.165:29510/nnrf-nfm/v1/nf-instances
+            - nrfId: http://free5gc-nrf-svc:29510/nnrf-nfm/v1/nf-instances
               nsiId: 22
       amfSetList:
         - amfSetId: 1
@@ -558,12 +569,12 @@ data:
       pcfName: PCF
       sbi:
         scheme: http
-        registerIPv4: 192.168.2.169 # IP used to register to NRF
-        bindingIPv4: 192.168.2.169  # IP used to bind the service
+        registerIPv4: free5gc-pcf-svc # 10.96.100.9 # IP used to register to NRF
+        bindingIPv4: free5gc-pcf-svc  # IP used to bind the service
         port: 29507
       timeFormat: 2019-01-02 15:04:05
       defaultBdtRefId: BdtPolicyId-
-      nrfUri: http://192.168.2.165:29510
+      nrfUri: http://free5gc-nrf-svc:29510
       serviceList:
         - serviceName: npcf-am-policy-control
         - serviceName: npcf-smpolicycontrol
@@ -588,8 +599,8 @@ data:
         - nudm-pp
       sbi:
         scheme: http
-        registerIPv4: 192.168.2.167 # IP used to register to NRF
-        bindingIPv4: 192.168.2.167  # IP used to bind the service
+        registerIPv4: free5gc-udm-svc # IP used to register to NRF
+        bindingIPv4: free5gc-udm-svc  # IP used to bind the service
         port: 29503
         tls:
           log: free5gc/udmsslkey.log
@@ -598,14 +609,14 @@ data:
       
       udrclient:
         scheme: http
-        ipv4Addr: 192.168.2.168
+        ipv4Addr: free5gc-udr-svc
         port: 29504
 
       nrfclient:
         scheme: http
-        ipv4Addr: 192.168.2.165
+        ipv4Addr: free5gc-nrf-svc
         port: 29510
-      nrfUri: http://192.168.2.165:29510
+      nrfUri: http://free5gc-nrf-svc:29510
 
       # test data set from TS33501-f60 Annex C.4
       # udmProfileAHNPublicKey: 5a8d38864820197c3394b92613b20b91633cbd897119273bf8e4a6f4eec0a650
@@ -626,13 +637,13 @@ data:
     configuration:
       sbi:
         scheme: http
-        registerIPv4: 192.168.2.168 # IP used to register to NRF
-        bindingIPv4: 192.168.2.168  # IP used to bind the service
+        registerIPv4: free5gc-udr-svc # 10.96.100.8 # IP used to register to NRF
+        bindingIPv4: free5gc-udr-svc  # IP used to bind the service
         port: 29504
       mongodb:
         name: free5gc
         url: mongodb://mongodb-svc:27017
-      nrfUri: http://192.168.2.165:29510
+      nrfUri: http://free5gc-nrf-svc:29510
 
   upfcfg.yaml: |
     info:
@@ -646,12 +657,39 @@ data:
       ReportCaller: false
 
       pfcp:
-        - addr: 192.168.2.160
+        - addr: free5gc-upf-svc
 
       gtpu:
-        - addr: 192.168.2.160
+        - addr: free5gc-upf-svc
         # [optional] gtpu.name
-        # - name: upf.5gc.nctu.me
+        # - name: free5gc-upf-svc
+        # [optional] gtpu.ifname
+        # - ifname: upfgtp
+
+      dnn_list:
+        - dnn: intranet
+          cidr: 60.60.0.0/24
+          # [optional] dnn_list[*].natifname
+          # natifname: eth0
+
+  anchor1-upfcfg.yaml: |
+    info:
+      version: 1.0.0
+      description: UPF configuration
+
+    configuration:
+      # debugLevel: panic|fatal|error|warn|info|debug|trace
+      debugLevel: info
+      # ReportCaller: true|false
+      ReportCaller: false
+
+      pfcp:
+        - addr: free5gc-anchor1-upf-svc
+
+      gtpu:
+        - addr: free5gc-anchor1-upf-svc
+        # [optional] gtpu.name
+        # - name: free5gc-upf-svc
         # [optional] gtpu.ifname
         # - ifname: upfgtp
 
@@ -659,7 +697,34 @@ data:
         - dnn: internet
           cidr: 60.60.0.0/24
           # [optional] dnn_list[*].natifname
-          # natifname: eth0
+          # natifname: eth0 
+
+  anchor2-upfcfg.yaml: |
+    info:
+      version: 1.0.0
+      description: UPF configuration
+
+    configuration:
+      # debugLevel: panic|fatal|error|warn|info|debug|trace
+      debugLevel: info
+      # ReportCaller: true|false
+      ReportCaller: false
+
+      pfcp:
+        - addr: free5gc-anchor2-upf-svc
+
+      gtpu:
+        - addr: free5gc-anchor2-upf-svc
+        # [optional] gtpu.name
+        # - name: free5gc-upf-svc
+        # [optional] gtpu.ifname
+        # - ifname: upfgtp
+
+      dnn_list:
+        - dnn: internet
+          cidr: 60.60.0.0/24
+          # [optional] dnn_list[*].natifname
+          # natifname: eth0 
     
   uerouting.yaml: |
     info:
@@ -668,14 +733,14 @@ data:
 
     ueRoutingInfo:
       - SUPI: imsi-2089300007487
-        AN: 192.168.2.160
+        AN: free5gc-upf-svc # 10.96.100.10
         PathList:
-          - DestinationIP: 60.60.0.100
+          - DestinationIP: 60.60.0.101
             UPF: !!seq
               - BranchingUPF
               - AnchorUPF1
 
-          - DestinationIP: 60.60.0.103
+          - DestinationIP: 60.60.0.102
             UPF: !!seq
               - BranchingUPF
               - AnchorUPF2
@@ -704,16 +769,7 @@ data:
             flowDescriptions:
               - permit out ip from 60.60.0.1 8080 to any
 
-  webuicfg.conf: |
-    info:
-      version: 1.0.0
-      description: WebUI initial local configuration
-
-    configuration:
-      mongodb:
-        name: free5gc
-        url: mongodb://mongodb-svc:27017
-
 kind: ConfigMap
 metadata:
   name: free5gc-configmap
+

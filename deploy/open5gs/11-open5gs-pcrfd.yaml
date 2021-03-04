@@ -1,0 +1,64 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: open5gs-pcrf-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-pcrf
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-pcrf
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/open5gs:v2.1.7
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "./bin/open5gs-pcrfd"]
+        volumeMounts:
+        - name: open5gs-pcrfcfg
+          mountPath: /open5gs/install/etc/open5gs/pcrf.yaml
+          subPath: pcrf.yaml
+        - name: open5gs-freediameter-pcrfcfg
+          mountPath: /open5gs/install/etc/freeDiameter/pcrf.conf
+          subPath: pcrf.conf
+      initContainers:
+      - name: init-network-client
+        image: sdnvortex/network-controller:v0.4.9
+        command: ["/go/bin/client"]
+        args: ["-s=unix:///tmp/vortex.sock", "-b=br0", "-n=eth1", "-i=192.168.2.11/23", "-g=192.168.3.254"]
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_UUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        volumeMounts:
+        - mountPath: /tmp/
+          name: grpc-sock
+      volumes:
+      - name: grpc-sock
+        hostPath:
+          path: /tmp/vortex/
+      - name: open5gs-pcrfcfg
+        configMap:
+          name: open5gs-configmap
+          items: 
+          - key: pcrf.yaml
+            path: pcrf.yaml
+      - name: open5gs-freediameter-pcrfcfg
+        configMap:
+          name: open5gs-freediameter-configmap
+          items: 
+          - key: pcrf.conf
+            path: pcrf.conf
