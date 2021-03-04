@@ -51,9 +51,9 @@ class NsInfo(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     nsInstanceName = models.TextField(null=True, blank=True)
     nsInstanceDescription = models.TextField(null=True, blank=True)
-    nsdId = models.TextField(null=True, blank=True)
-    nsdInfoId = models.TextField(null=True, blank=True)
-    flavourId = models.TextField(null=True, blank=True)
+    nsdId = models.UUIDField(null=True, blank=True)
+    nsdInfoId = models.UUIDField(null=True, blank=True)
+    flavourId = models.UUIDField(null=True, blank=True)
     vnfInstance = models.TextField(null=True, blank=True)
     vnffgInfo = models.TextField(null=True, blank=True)
     nestedNsInstanceId = models.TextField(null=True, blank=True)
@@ -133,6 +133,7 @@ class OtherFunction(models.Model):
     sBIFQDN = models.TextField()
     sBIServiceList = models.TextField()
     sNSSAIList = models.ManyToManyField(SNSSAIList, related_name='sNSSAIListId_OtherFunction')
+
 
 class CommonNotification(models.Model):
     notificationId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)

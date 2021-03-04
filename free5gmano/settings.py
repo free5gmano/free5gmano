@@ -30,12 +30,12 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 PLUGIN_ROOT = os.path.join(BASE_DIR, 'nssmf', 'plugin')
-
 MEDIA_ROOT = "/data/nm"
 MEDIA_URL = 'download/'
-
+DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD', 'password')
+DATABASE_HOST = os.getenv('DATABASE_HOST', '127.0.0.1')
+DATABASE_PORT = os.getenv('DATABASE_PORT', '3306')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -106,6 +106,7 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.sqlite3',
     #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     # }
+<<<<<<< HEAD
    'default': {
        'ENGINE': 'django.db.backends.mysql',
        'NAME': 'free5gmano',
@@ -114,6 +115,16 @@ DATABASES = {
        'HOST': os.getenv('FREE5GMANO_MYSQL_HOST', '10.0.0.232'),
        'PORT': os.getenv('FREE5GMANO_MYSQL_PORT', '30306'),
    }
+=======
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'free5gmano',
+        'USER': 'root',
+        'PASSWORD': DATABASE_PASSWORD,
+        'HOST': DATABASE_HOST,
+        'PORT': DATABASE_PORT,
+    }
+>>>>>>> b2865ec1cb2f72c94d225fab3cd1f15bfe20dd1e
 }
 
 # Password validation
