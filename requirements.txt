@@ -1,6 +1,6 @@
 PyYAML
 # pprint
-jsonschema
+jsonschema==3.0.2
 Django==2.2.8
 djangorestframework==3.10.1
 pytz==2019.1
@@ -10,5 +10,5 @@ requests==2.21.0
 django-mysql
 mysqlclient
 django-cors-headers
-drf-yasg
+drf-yasg==1.17.0
 service-mapping-plugin-framework
