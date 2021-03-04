@@ -63,7 +63,6 @@ INSTALLED_APPS = [
     'nssmf',
     "drf_yasg",
     "moi",
-    'FaultManagement',
     'corsheaders',
 ]
 
