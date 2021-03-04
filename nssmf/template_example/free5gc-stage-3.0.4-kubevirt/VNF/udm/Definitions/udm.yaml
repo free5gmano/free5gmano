@@ -1,0 +1,78 @@
+tosca_definitions_version: tosca_simple_yaml_1_0
+
+topology_template:
+  node_templates:
+    VNF1:
+      type: tosca.nodes.nfv.VNF
+      properties:
+        descriptor_id: 2c0c0cfd-1dd2-11b2-8005-080027b24udm
+        descriptor_version: 1.0
+        provider: imac
+        product_name: udm
+        software_version: latest
+
+    VDU1:
+      type: tosca.nodes.nfv.Vdu.Compute
+      properties:
+        sw_image_data:
+          name: free5gc-control-plane
+          provider: free5gmano
+          version: latest
+          diskFormat: qcow2
+      capabilities:
+        virtual_compute:
+          properties:
+            virtual_memory:
+              virtual_mem_size: 512Mi
+            virtual_cpu:
+              num_virtual_cpu: 250m
+      artifacts:
+        sw_image:
+          type: tosca.artifacts.nfv.SwImage
+          file: u8566789/free5gc-control-plane-kubevirt:stage3.0.4
+      attributes:
+        namespace: default
+        replicas: 1
+        command:
+          - cd /root
+          - git clone https://gitlab.com/s1810832012/free5gc-kubevirt-config.git -b stage3.0.4
+          - cp free5gc-kubevirt-config/free5GC.conf /home/ubuntu/free5gc/config/free5GC.conf
+          - cp free5gc-kubevirt-config/udmcfg.conf /home/ubuntu/free5gc/config/udmcfg.conf
+          - /home/ubuntu/free5gc/bin/udm
+        user_name: ubuntu
+        user_public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCdXUbBs0u3rr+X7bJNAUAAYqMpeckapq07A+1R/hSCRMo1KuWjX9n9LbkAIbcetx3eevhVl8z2BdIDAi94RSRNnPTRRPm4xohElw8jYIfz2OJ35gsiuhe5V3d0D6HyxkyGFSAAvA2w5+4VdPEEv6tHz/vWji3gW4YBlgnZez/yMyqzkGh20Qzkvk7eOK62z4s5VZTDBkgdf5NWoiK8Ub2yQ/LEmrrWo3haQWJW1dXjLHEN3Mf7FfdgtXjVeywwlEySWdIuKyaly+NvuxhBYoNZAfeSbWWRgNRv56++InkmAlVx0D7ALMZi47j8z8tSBup5JbR8nTA7OTNy81cQD0tl acer@acer-Aspire-E5-572G
+
+    CP1:
+      type: tosca.nodes.nfv.Cpd
+      properties:
+        layer_protocol: ipv4
+      requirements:
+        virtual_binding: VDU1
+        virtual_link: VL1
+
+    VL1:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        network_name: management
+        vl_profile:
+          virtual_link_protocol_data:
+            l3_protocol_data:
+              dhcp_enabled: False
+
+    CP2:
+      type: tosca.nodes.nfv.Cpd
+      properties:
+        type: ovs
+        layer_protocol: ipv4
+      requirements:
+        virtual_binding: VDU1
+        virtual_link: VL2
+
+    VL2:
+      type: tosca.nodes.nfv.VnfVirtualLink
+      properties:
+        network_name: ovs-net
+        vl_profile:
+          virtual_link_protocol_data:
+            l3_protocol_data:
+              cidr: 192.168.2.167/23

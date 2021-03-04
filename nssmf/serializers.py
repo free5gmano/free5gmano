@@ -18,8 +18,8 @@ class GenericTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GenericTemplate
-        fields = ['templateId', 'nfvoType', 'templateType', 'templateFile', 'content',
-                  'operationStatus', 'operationTime']
+        fields = ['templateId', 'name', 'nfvoType', 'templateType', 'templateFile', 'content',
+                  'operationStatus', 'operationTime', 'description']
         read_only_fields = ['templateFile']
 
     def create(self, validated_data):
@@ -87,9 +87,9 @@ class ServiceMappingPluginSerializer(serializers.ModelSerializer):
         if 'context' in kwargs.keys():
             view = kwargs['context']['view']
             if view.action == 'list':
-                self.Meta.fields = ['name', 'allocate_nssi', 'deallocate_nssi', 'pluginFile']
+                self.Meta.fields = ['name', 'allocate_nssi', 'deallocate_nssi', 'pluginFile', 'nm_host', 'nfvo_host', 'subscription_host']
             elif view.action == 'retrieve':
-                self.Meta.fields = ['name', 'allocate_nssi', 'deallocate_nssi']
+                self.Meta.fields = ['name', 'allocate_nssi', 'deallocate_nssi', 'pluginFile', 'nm_host', 'nfvo_host', 'subscription_host']
             elif view.action == 'create':
                 self.Meta.fields = ['name', 'pluginFile']
             elif view.action == 'update':
@@ -122,10 +122,10 @@ class ServiceMappingPluginSerializer(serializers.ModelSerializer):
                     'name': validated_data['name'],
                     'allocate_nssi': config['allocate_file'],
                     'deallocate_nssi': config['deallocate_file'],
-                    'pluginFile': validated_data['pluginFile'],
-                    'nm_host': config['nm_host'],
-                    'nfvo_host': config['nfvo_host'],
-                    'subscription_host': config['subscription_host']
+                    'nm_host': config['nm_ip'],
+                    'nfvo_host': config['nfvo_ip'],
+                    'subscription_host': config['kafka_ip'],
+                    'pluginFile': validated_data['pluginFile']
                 }
                 self.Meta.fields = '__all__'
             return super().create(validated_data)
@@ -135,6 +135,7 @@ class ServiceMappingPluginSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         response_data = dict()
         zipfile_check = ['deallocate/main.py', 'config.yaml', 'allocate/main.py']
+        
         # Extract Zip file
         with zipfile.ZipFile(validated_data['pluginFile']) as _zipfile:
             for file in _zipfile.filelist:
@@ -151,10 +152,10 @@ class ServiceMappingPluginSerializer(serializers.ModelSerializer):
                 validated_data = {
                     'allocate_nssi': config['allocate_file'],
                     'deallocate_nssi': config['deallocate_file'],
-                    'pluginFile': validated_data['pluginFile'],
-                    'nm_host': config['nm_host'],
-                    'nfvo_host': config['nfvo_host'],
-                    'subscription_host': config['subscription_host']
+                    'nm_host': config['nm_ip'],
+                    'nfvo_host': config['nfvo_ip'],
+                    'subscription_host': config['kafka_ip'],
+                    'pluginFile': validated_data['pluginFile']
                 }
                 self.Meta.fields = '__all__'
                 instance.pluginFile.delete()
