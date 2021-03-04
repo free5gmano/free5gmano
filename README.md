@@ -99,7 +99,7 @@ CREATE DATABASE free5gmano;
 ```
 7. Database migrate
 ```
-python manage.py makemigrations nssmf moi
+python manage.py makemigrations nssmf moi FaultManagement
 python manage.py migrate
 ```
 8. Run the Django server
