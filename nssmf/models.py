@@ -31,6 +31,7 @@ class ServiceMappingPluginModel(models.Model):
 
 class GenericTemplate(models.Model):
     templateId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.TextField(null=True, blank=True)
     templateType = models.CharField(max_length=255,
                                     choices=TemplateType)
     nfvoType = models.CharField(max_length=255)
@@ -38,6 +39,7 @@ class GenericTemplate(models.Model):
     operationStatus = models.CharField(max_length=255,
                                        choices=OperationStatus,
                                        default=OperationStatus.CREATED)
+    description = models.TextField(null=True, blank=True)
     operationTime = models.DateTimeField(auto_now=True)
 
 

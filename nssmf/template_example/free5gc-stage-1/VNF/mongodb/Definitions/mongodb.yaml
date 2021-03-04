@@ -33,14 +33,15 @@ topology_template:
       requirements:
         virtual_storage:
           properties:
-            type_of_storage: volume
+            type_of_storage: local
             size_of_storage: 20Gi
             path_of_storage: /data/db
       attributes:
         namespace: default
         replicas: 1
         name_of_service: mongodb-svc
-        ports: 27017
+        ports:
+        - 27017
 
     CP1:
       type: tosca.nodes.nfv.Cpd

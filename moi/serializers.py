@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+# from moi.models import *
 from moi.models import NetworkSliceSubnet
 from moi.models import NsInfo
 from moi.models import PLMNIdList
@@ -19,6 +19,7 @@ from moi.models import OtherFunction
 from moi.models import CommonNotification
 from moi.models import Subscription
 from django.apps import apps
+
 
 class SSTSerializer(serializers.ModelSerializer):
     class Meta:
@@ -61,8 +62,7 @@ class NsInfoSerializer(serializers.ModelSerializer):
 class NetworkSliceSubnetSerializer(serializers.ModelSerializer):
     class Meta:
         model = NetworkSliceSubnet
-        fields = ('nssiId', 'mFIdList', 'constituentNSSIIdList',
-                  "operationalState", 'administrativeState', 'nsInfo', 'sliceProfileList')
+        fields = '__all__'
 
 
 class AMFSetSerializer(serializers.ModelSerializer):
@@ -122,7 +122,7 @@ class OtherFunctionSerializer(serializers.ModelSerializer):
 class NsInfoTopologySerializer(serializers.ModelSerializer):
     class Meta:
         model = NsInfo
-        fields = ['id', 'nsInstanceDescription', 'nsdId', 'nsdInfoId', 'vnfInstance']
+        fields = '__all__'
 
 
 class NetworkSliceSubnetTopologySerializer(serializers.ModelSerializer):
@@ -132,6 +132,7 @@ class NetworkSliceSubnetTopologySerializer(serializers.ModelSerializer):
     class Meta:
         model = NetworkSliceSubnet
         fields = ['nssiId', 'nsInfo']
+
 
 class CommonNotificationSerializer(serializers.ModelSerializer):
 
@@ -151,12 +152,12 @@ class CommonNotificationSerializer(serializers.ModelSerializer):
         return all(element in pk_list for element in eval(validated_data['objectInstanceInfos']))
 
     def create(self, validated_data):
-        if self.check(validated_data) or validated_data['notificationType'] == 'notifyMOICreation':
+        if self.check(validated_data):
             return super().create(validated_data)
         raise Exception('objectClass is not found objectInstanceInfos in table.')
 
     def update(self, instance, validated_data):
-        if self.check(validated_data) or validated_data['notificationType'] == 'notifyMOICreation':
+        if self.check(validated_data):
             return super().update(instance, validated_data)
         raise Exception('objectClass is not found objectInstanceInfos in table.')
 
@@ -181,4 +182,3 @@ class SubscriptionRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
         fields = '__all__'
-
