@@ -150,8 +150,8 @@ class AlarmsCount(models.Model):
 
 # class FailedAlarmsResponse(models.Model):
 #     # error [{
-#     # alarmId	alarmId-Typestring
-#     # errorReason	string
+#     # alarmId alarmId-Typestring
+#     # errorReason string
 #     #
 #     # }]
 #

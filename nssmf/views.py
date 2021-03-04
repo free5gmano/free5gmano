@@ -26,7 +26,8 @@ from rest_framework.response import Response
 from rest_framework import status, mixins
 from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 
 from nssmf.serializers import SliceTemplateSerializer, SliceTemplateRelationSerializer, \
     GenericTemplateSerializer, GenericTemplateFileSerializer, ServiceMappingPluginSerializer, \
@@ -34,6 +35,21 @@ from nssmf.serializers import SliceTemplateSerializer, SliceTemplateRelationSeri
 from nssmf.models import SliceTemplate, GenericTemplate, ServiceMappingPluginModel, Content
 from nssmf.enums import OperationStatus, PluginOperationStatus
 from free5gmano import settings
+
+
+class CustomAuthToken(ObtainAuthToken):
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return JsonResponse({
+            'token': token.key,
+            'user_id': user.pk,
+            'email': user.email
+        })
 
 
 class MultipleSerializerViewSet(ModelViewSet):
@@ -130,23 +146,23 @@ class GenericTemplateView(MultipleSerializerViewSet):
         generic_template_obj = self.get_object()
         # Delete old Content related
         for relate_obj in self.get_object().content_set.all():
+            file = self.get_object().templateFile
+            file.delete()
             self.get_object().content_set.remove(relate_obj)
-
+            
         with zipfile.ZipFile(request.data['templateFile']) as _zipfile:
             for element in _zipfile.namelist():
                 if '.yaml' in element:
                     with _zipfile.open(element) as file:
                         content = yaml.load(file, Loader=yaml.FullLoader)
-                        filename = element
-                    check_result = self.check(request, content, filename)
+                        content_obj = Content(type=self.get_object().templateType,
+                                              tosca_definitions_version=content['tosca_definitions_version'],
+                                              topology_template=str(content['topology_template']))
+                    # check_result = self.check(request, content, filename)
 
-                    if check_result:
-                        return Response(check_result, status=400)
+                    # if check_result:
+                    #     return Response(check_result, status=400)
 
-                    content_obj = Content(type=self.get_object().templateType,
-                                          tosca_definitions_version=content[
-                                              'tosca_definitions_version'],
-                                          topology_template=str(content['topology_template']))
                     content_obj.save()
                     generic_template_obj.content_set.add(content_obj)
                 elif '.json' in element:
@@ -161,6 +177,33 @@ class GenericTemplateView(MultipleSerializerViewSet):
         self.partial_update(request, *args, **kwargs)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @action(detail=False, methods=['get'], url_path='example_download/(?P<example>(.)*)/(?P<path>(.)*)')
+    def example_download(self, request, *args, **kwargs):
+        """
+            Download an individual Generic Template.
+
+            The GET method reads the content of the Generic Template.
+        """
+        source_path = os.getcwd()
+        # download_query = self.queryset.filter(templateFile=kwargs['path'])
+        # if download_query:
+        #     with download_query[0].templateFile.open() as f:
+        #         return HttpResponse(f.read(), content_type="application/zip")
+        # else:
+        example_file = os.path.join(settings.BASE_DIR, 'nssmf', 'template_example',
+                                    kwargs['example'], kwargs['path'].split('/')[0])
+        os.chdir(example_file)
+
+        with zipfile.ZipFile(example_file + '.zip', mode='w',
+                             compression=zipfile.ZIP_DEFLATED) as zf:
+            for root, folders, files in os.walk('.'):
+                for s_file in files:
+                    a_file = os.path.join(root, s_file)
+                    zf.write(a_file)
+        os.chdir(source_path)
+        with open(example_file + '.zip', 'rb') as f:
+            return HttpResponse(f.read(), content_type="application/zip")
+
     @action(detail=False, methods=['get'], url_path='download/(?P<path>(.)*)')
     def download(self, request, *args, **kwargs):
         """
@@ -168,25 +211,15 @@ class GenericTemplateView(MultipleSerializerViewSet):
 
             The GET method reads the content of the Generic Template.
         """
-        source_path = os.getcwd()
         download_query = self.queryset.filter(templateFile=kwargs['path'])
+        s = download_query[0].templateFile.name
+        filename = s[4:]
         if download_query:
             with download_query[0].templateFile.open() as f:
-                return HttpResponse(f.read(), content_type="application/zip")
-        else:
-            example_file = os.path.join(settings.BASE_DIR, 'nssmf', 'template_example',
-                                        'free5gc-stage-1', kwargs['path'].split('/')[0])
-            os.chdir(example_file)
-
-            with zipfile.ZipFile(example_file + '.zip', mode='w',
-                                 compression=zipfile.ZIP_DEFLATED) as zf:
-                for root, folders, files in os.walk('.'):
-                    for s_file in files:
-                        a_file = os.path.join(root, s_file)
-                        zf.write(a_file)
-            os.chdir(source_path)
-            with open(example_file + '.zip', 'rb') as f:
-                return HttpResponse(f.read(), content_type="application/zip")
+                # return HttpResponse(f.read(), content_type="application/zip")
+                response = HttpResponse(f.read(), content_type="application/zip")
+                response['Content-Disposition'] = 'inline; filename=' + filename
+                return response
 
 
 class SliceTemplateView(MultipleSerializerViewSet):
@@ -276,16 +309,15 @@ class ProvisioningView(GenericViewSet, mixins.CreateModelMixin, mixins.DestroyMo
                     service_plugin['name'],
                     service_plugin['allocate_nssi'].split('/')[0],
                     service_plugin['allocate_nssi'].split('/')[1].split('.')[0]))
-
-            nfvo_plugin = plugin.NFVOPlugin(service_plugin['nm_host'],
-                                            service_plugin['nfvo_host'],
-                                            service_plugin['subscription_host'],
-                                            parameter)
+            nfvo_plugin = plugin.NFVOPlugin(
+                        service_plugin['nm_host'],
+                        service_plugin['nfvo_host'],
+                        service_plugin['subscription_host'],
+                        parameter)
             nfvo_plugin.allocate_nssi()
             unit_query.instanceId.add(nfvo_plugin.nssiId)
             return JsonResponse(nfvo_plugin.moi_config)
         except IOError as e:
-            print(e)
             return JsonResponse(response_data, status=400)
 
     def destroy(self, request, *args, **kwargs):
@@ -324,7 +356,6 @@ class ProvisioningView(GenericViewSet, mixins.CreateModelMixin, mixins.DestroyMo
                 return JsonResponse(response_data, status=400)
         except TypeError:
             return JsonResponse(response_data, status=400)
-
 
 class ServiceMappingPluginView(ModelViewSet):
     """ Service Mapping Plugin framework
@@ -374,7 +405,6 @@ class ServiceMappingPluginView(ModelViewSet):
         """
         self_object = self.get_object()
         file = self_object.pluginFile
-        print(file)
         if file:
             file_folder = os.path.join(
                 settings.PLUGIN_ROOT,
@@ -396,6 +426,8 @@ class ServiceMappingPluginView(ModelViewSet):
         try:
             plugin_obj = ServiceMappingPluginModel.objects.get(name=kwargs['name'])
             with plugin_obj.pluginFile.open() as f:
-                return HttpResponse(f.read(), content_type="application/zip")
+                response = HttpResponse(f.read(), content_type="application/zip")
+                response['Content-Disposition'] = 'inline; filename=' + kwargs['filename']
+                return response
         except IOError:
             raise Http404

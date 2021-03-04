@@ -1,0 +1,7 @@
+TOSCA-Meta-File-Version: 1.0
+CSAR-Version: 1.1
+Created-By: imac
+Entry-Definitions: Definitions/amf.yaml
+ETSI-Entry-Manifest: free5gc-amf.mf
+ETSI-Entry-Change-Log: Files/ChangeLog.txt
+ETSI-Entry-Licenses: Files/Licenses

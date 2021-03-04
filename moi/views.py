@@ -71,7 +71,7 @@ class TaskThread(threading.Thread):
                         pass
                     else:
                         print('Change MOI')
-                        # Notify callbackuri
+                        # Notify calluri
                         header = {"Content-Type": "application/vnd.kafka.v1+json"}
                         data = {
                             "notificationId": self.notify_data['notificationId'],
@@ -81,24 +81,11 @@ class TaskThread(threading.Thread):
                         _data = {"records": [{"value": b64_data.decode()}]}
                         requests.post(url=self.callback_uri, json=_data, headers=header)
                 pre_value_list = value_list
-        elif self.notify_data['notificationType'] == 'notifyMOICreation':
-            record_count = model.objects.count()
-            while 1:
-                time.sleep(self.time_tick)
-                if record_count >= model.objects.count():
-                    pass
-                else:
-                    print('Create MOI')
-                    # Notify callbackuri
-                    header = {"Content-Type": "application/vnd.kafka.v1+json"}
-                    data = {
-                        "notificationId": self.notify_data['notificationId'],
-                        "notificationType": self.notify_data['notificationType']
-                    }
-                    b64_data = base64.b64encode(str(data).encode())
-                    _data = {"records": [{"value": b64_data.decode()}]}
-                    requests.post(url=self.callback_uri, json=_data, headers=header)
-                    break
+
+        # while not self.stop:
+        #     time.sleep(self.time_tick)
+        #
+        #     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "%s" % (self.getName(),))
 
 
 class MultipleSerializerViewSet(ModelViewSet):
@@ -107,7 +94,7 @@ class MultipleSerializerViewSet(ModelViewSet):
             return SubscriptionRetrieveSerializer
         return SubscriptionSerializer
 
-    
+
 class ObjectManagement(ModelViewSet):
     queryset = NetworkSliceSubnet.objects.all()
     serializer_class = NetworkSliceSubnetSerializer
@@ -143,6 +130,14 @@ class ObjectManagement(ModelViewSet):
         if not Scope.has_value(scope_seq[0]):
             return JsonResponse(response_data, status=400)
 
+        # if not Scope.has_value(scope_seq[0]):
+        #     response = JsonResponse(response_data, status=400)
+        #     response["Access-Control-Allow-Origin"] = "*"
+        #     response["Access-Control-Allow-Methods"] = "GET"
+        #     response["Access-Control-Max-Age"] = "1000"
+        #     response["Access-Control-Allow-Headers"] = "*"
+        #     return response
+
         moi_serializer_class.Meta.depth = get_scope_level(scope_seq[0], scope_seq[1])
 
         try:
@@ -165,7 +160,8 @@ class ObjectManagement(ModelViewSet):
                          'attributeListOut': moi_object_serializer.data}
 
         return JsonResponse(response_data, status=200)
-
+        # return response_cors(request.method, JsonResponse(response_data, status=100))
+    
     @csrf_exempt
     @action(detail=True, methods='PATCH', name='modifyMOIAttributes')
     def modify_moi_attributes(self, request, **kwargs):
@@ -268,6 +264,14 @@ def get_scope_level(level_selection, level):
         return 10
 
 
+def response_cors(method_type, response):
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = method_type
+    response["Access-Control-Max-Age"] = "1000"
+    response["Access-Control-Allow-Headers"] = "*"
+    return response
+
+
 def update(moi_object_data, data, operator):
     global modification_list
     global moi_object_list
@@ -314,6 +318,7 @@ class SubscriptionView(MultipleSerializerViewSet):
     """
     queryset = Subscription.objects.all()
     serializer_class = MultipleSerializerViewSet.get_serializer_class
+    thread_pool = dict()
 
     def list(self, request, *args, **kwargs):
         """
@@ -339,10 +344,10 @@ class SubscriptionView(MultipleSerializerViewSet):
                 "objectClass": notify_obj.objectClass,
                 "additionalText": eval(notify_obj.additionalText)
             }
-            THREAD_POOL[notification] = TaskThread(request.data['timeTick'],
-                                                   request.data['callbackUri'],
-                                                   notify_data)
-            THREAD_POOL[notification].start()
+            self.thread_pool[notification] = TaskThread(request.data['timeTick'],
+                                                        request.data['callbackUri'],
+                                                        notify_data)
+            self.thread_pool[notification].start()
         return response
 
     def retrieve(self, request, *args, **kwargs):
@@ -368,8 +373,8 @@ class SubscriptionView(MultipleSerializerViewSet):
             The DELETE method deletes an individual Subscription resource.
         """
         for notification in self.get_object().filter.all():
-            if str(notification.notificationId) in THREAD_POOL:
-                task = THREAD_POOL[str(notification.notificationId)]
+            if str(notification.notificationId) in self.thread_pool:
+                task = self.thread_pool[str(notification.notificationId)]
                 task.stop = True
         return super().destroy(request, *args, **kwargs)
 
