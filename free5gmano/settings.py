@@ -33,9 +33,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PLUGIN_ROOT = os.path.join(BASE_DIR, 'nssmf', 'plugin')
 MEDIA_ROOT = "/data/nm"
 MEDIA_URL = 'download/'
-DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD', 'password')
-DATABASE_HOST = os.getenv('DATABASE_HOST', '127.0.0.1')
-DATABASE_PORT = os.getenv('DATABASE_PORT', '3306')
+DATABASE_USER = os.getenv('FREE5GMANO_MYSQL_USER', 'root')
+DATABASE_PASSWORD = os.getenv('FREE5GMANO_MYSQL_PASSWORD', 'password')
+DATABASE_HOST = os.getenv('FREE5GMANO_MYSQL_HOST', '127.0.0.1')
+DATABASE_PORT = os.getenv('FREE5GMANO_MYSQL_PORT', '3306')
+DATABASE_NAME = os.getenv('FREE5GMANO_DB_NAME', 'free5gmano')
 
 
 # Quick-start development settings - unsuitable for production
@@ -110,8 +112,8 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'free5gmano',
-        'USER': 'root',
+        'NAME': DATABASE_NAME,
+        'USER': DATABASE_USER,
         'PASSWORD': DATABASE_PASSWORD,
         'HOST': DATABASE_HOST,
         'PORT': DATABASE_PORT,
