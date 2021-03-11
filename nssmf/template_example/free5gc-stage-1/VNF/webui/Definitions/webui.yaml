@@ -42,6 +42,7 @@ topology_template:
     CP1:
       type: tosca.nodes.nfv.Cpd
       properties:
+        type: ovs
         layer_protocol: ipv4
       requirements:
         virtual_binding: VDU1
