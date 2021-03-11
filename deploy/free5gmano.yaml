@@ -25,10 +25,8 @@ spec:
               value: "free5gmano-mysql"
             - name: FREE5GMANO_MYSQL_PORT
               value: "3306"
-            - name: FREE5GMANO_NM
-              value: "free5gmano:8000"
-            - name: FREE5GMANO_NFVO
-              value: "kube5gnfvo"
+            - name: FREE5GMANO_DB_NAME
+              value: "free5gmano"
           volumeMounts:
             - name: free5gmano-template-storage
               mountPath: /data/nm/
