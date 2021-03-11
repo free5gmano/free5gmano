@@ -42,9 +42,6 @@ topology_template:
         namespace: default
         replicas: 1
         command: [sh, -c, /root/free5gc/install/bin/nextepc-hssd]
-        env:
-          - name: DB_URI
-            value: mongodb://mongodb-svc/free5gc
 
     CP1:
       type: tosca.nodes.nfv.Cpd
@@ -66,6 +63,7 @@ topology_template:
     CP2:
       type: tosca.nodes.nfv.Cpd
       properties:
+        type: ovs
         layer_protocol: ipv4
       requirements:
         virtual_binding: VDU1
