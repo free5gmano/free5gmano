@@ -1,0 +1,28 @@
+tosca_definitions_version: tosca_simple_yaml_1_2
+
+topology_template:
+  node_templates:
+    NS1:
+      type: tosca.nodes.nfv.NS
+      properties:
+        descriptor_id: 1f8d97c9-4d8f-4c7e-aeab-519103d0bd1a
+        designer: imac
+        version: 1.0
+        name: open5gs-ns-2.1.7
+        invariant_id: 1111-2222-aaaa-cccc
+        constituent_vnfd:
+          - vnfd_id: 646a675c-bd6c-48ef-90ba-ede42mongodb
+          - vnfd_id: 5ef97a96-d17b-4f21-86d3-af2532ea1mme
+          - vnfd_id: 4cdeccca-c72a-4b98-9294-d2441cffsgwc
+          - vnfd_id: 5ef97a96-d17b-4f21-86d3-af2532ea1smf
+          - vnfd_id: 5ef97a96-d17b-4f21-86d3-af2532ea1amf
+          - vnfd_id: 4cdeccca-c72a-4b98-9294-d2441cffsgwu
+          - vnfd_id: 5ef97a96-d17b-4f21-86d3-af2532ea1upf
+          - vnfd_id: 5ef97a96-d17b-4f21-86d3-af2532ea1hss
+          - vnfd_id: 4cdeccca-c72a-4b98-9294-d2441cffpcrf
+          - vnfd_id: 5ef97a96-d17b-4f21-86d3-af2532ea1nrf
+          - vnfd_id: 4cdeccca-c72a-4b98-9294-d2441cffausf
+          - vnfd_id: 5ef97a96-d17b-4f21-86d3-af2532ea1udm
+          - vnfd_id: 5ef97a96-d17b-4f21-86d3-af2532ea1pcf
+          - vnfd_id: 5ef97a96-d17b-4f21-86d3-af2532ea1udr
+          - vnfd_id: 646a675c-bd6c-48ef-90ba-ede42b3webui
