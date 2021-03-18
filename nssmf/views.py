@@ -185,11 +185,6 @@ class GenericTemplateView(MultipleSerializerViewSet):
             The GET method reads the content of the Generic Template.
         """
         source_path = os.getcwd()
-        # download_query = self.queryset.filter(templateFile=kwargs['path'])
-        # if download_query:
-        #     with download_query[0].templateFile.open() as f:
-        #         return HttpResponse(f.read(), content_type="application/zip")
-        # else:
         example_file = os.path.join(settings.BASE_DIR, 'nssmf', 'template_example',
                                     kwargs['example'], kwargs['path'].split('/')[0])
         os.chdir(example_file)
@@ -203,24 +198,6 @@ class GenericTemplateView(MultipleSerializerViewSet):
         os.chdir(source_path)
         with open(example_file + '.zip', 'rb') as f:
             return HttpResponse(f.read(), content_type="application/zip")
-
-    @action(detail=False, methods=['get'], url_path='download/(?P<path>(.)*)')
-    def download(self, request, *args, **kwargs):
-        """
-            Download an individual Generic Template.
-
-            The GET method reads the content of the Generic Template.
-        """
-        download_query = self.queryset.filter(templateFile=kwargs['path'])
-        s = download_query[0].templateFile.name
-        filename = s[4:]
-        if download_query:
-            with download_query[0].templateFile.open() as f:
-                # return HttpResponse(f.read(), content_type="application/zip")
-                response = HttpResponse(f.read(), content_type="application/zip")
-                response['Content-Disposition'] = 'inline; filename=' + filename
-                return response
-
 
 class SliceTemplateView(MultipleSerializerViewSet):
     """
