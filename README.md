@@ -58,7 +58,7 @@ kubectl apply -f .
 ### Install Kafka
 Please refer to [Kafka](https://docs.confluent.io/current/getting-started.html) Installation Guide to install Kafka.
 ### Manual install free5gmano
-If you deploy free5gmano by Kubernetes you can jump to [Apply a NSSI (Network Slice Subnet Instance)](#apply-a-nssi-network-slice-subnet-instance).
+If you have deployed free5gmano by Kubernetes before, you can jump to [Apply a NSSI (Network Slice Subnet Instance)](#apply-a-nssi-network-slice-subnet-instance).
 1. Install the required packages
 ```
 sudo apt -y update
