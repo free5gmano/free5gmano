@@ -33,7 +33,7 @@ topology_template:
         upf:
           type: tosca.artifacts.File
           file: Files/Artifacts/upfcfg.conf
-          deploy_path: /go/src/free5gc/config/upfcfg.yaml
+          deploy_path: /go/src/free5gc/src/upf/build/config/upfcfg.yaml
         free5gc:
           type: tosca.artifacts.File
           file: Files/Artifacts/free5GC.conf
