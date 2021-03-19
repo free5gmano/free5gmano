@@ -2,7 +2,7 @@ PyYAML
 # pprint
 jsonschema==3.0.2
 Django==2.2.8
-djangorestframework==3.10.1
+djangorestframework==3.11.2
 pytz==2019.1
 sqlparse==0.3.0
 requests==2.21.0
