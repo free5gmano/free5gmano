@@ -82,14 +82,8 @@ cd free5gmano
 ```
 pip install -r requirements.txt
 ```
-5. Edit user host 
-```
-sudo mysql -u root
-CREATE USER '<your mysql user>'@'%' IDENTIFIED BY '<your mysql password>';
-GRANT ALL PRIVILEGES ON *.* TO '<your mysql user>'@'%' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
-```
-6. Apply environment variable
+
+5. Apply environment variable
 ```
 echo 'export FREE5GMANO_MYSQL_USER=<your mysql user>' >> ~/.bashrc
 echo 'export FREE5GMANO_MYSQL_PASSWORD=<your mysql password>' >> ~/.bashrc
@@ -99,27 +93,18 @@ echo 'export FREE5GMANO_NM=127.0.0.1:8000' >> ~/.bashrc
 echo 'export FREE5GMANO_NFVO=<your nfvo ip>:<your nfvo port>' >> ~/.bashrc
 source ~/.bashrc
 ```
-7. Edit database config
-```
-vim /etc/mysql/mysql.conf.d/mysqld.cnf
 
-...
-bind-address=<your mysql host ip>
-...
-
-sudo service mysql restart
+6. Create a database
 ```
-8. Create a database
-```
-mysql -h $FREE5GMANO_MYSQL_HOST -u $FREE5GMANO_MYSQL_USER -p$FREE5GMANO_MYSQL_PASSWORD
+mysql -u $FREE5GMANO_MYSQL_USER -p$FREE5GMANO_MYSQL_PASSWORD
 CREATE DATABASE free5gmano;
 ```
-9. Database migrate
+7. Database migrate
 ```
 python manage.py makemigrations nssmf moi FaultManagement
 python manage.py migrate
 ```
-10. Run the Django server
+8. Run the Django server
 ```
 python manage.py runserver 0.0.0.0:8000
 ```
