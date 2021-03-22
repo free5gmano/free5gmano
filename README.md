@@ -92,17 +92,27 @@ echo 'export FREE5GMANO_NM=127.0.0.1:8000' >> ~/.bashrc
 echo 'export FREE5GMANO_NFVO=<your nfvo ip>:<your nfvo port>' >> ~/.bashrc
 source ~/.bashrc
 ```
-6. Create a database
+6. Edit database config
+```
+vim /etc/mysql/mysql.conf.d/mysqld.cnf
+
+...
+bind-address=<your mysql host ip>
+...
+
+sudo service mysql restart
+```
+7. Create a database
 ```
 mysql -h $FREE5GMANO_MYSQL_HOST -u $FREE5GMANO_MYSQL_USER -p$FREE5GMANO_MYSQL_PASSWORD
 CREATE DATABASE free5gmano;
 ```
-7. Database migrate
+8. Database migrate
 ```
 python manage.py makemigrations nssmf moi FaultManagement
 python manage.py migrate
 ```
-8. Run the Django server
+9. Run the Django server
 ```
 python manage.py runserver 0.0.0.0:8000
 ```
