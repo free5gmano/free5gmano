@@ -1,7 +1,7 @@
 PyYAML
 # pprint
 jsonschema==3.0.2
-Django==2.2.8
+Django==2.2.20
 djangorestframework==3.10.1
 pytz==2019.1
 sqlparse==0.3.0
