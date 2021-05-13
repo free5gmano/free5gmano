@@ -58,7 +58,7 @@ kubectl apply -f .
 ### Install Kafka
 Please refer to [Kafka](https://docs.confluent.io/current/getting-started.html) Installation Guide to install Kafka.
 ### Manual install free5gmano
-If you deploy free5gmano by Kubernetes you can jump to [Apply a NSSI (Network Slice Subnet Instance)](#apply-a-nssi-network-slice-subnet-instance).
+If you have deployed free5gmano by Kubernetes before, you can jump to [Apply a NSSI (Network Slice Subnet Instance)](#apply-a-nssi-network-slice-subnet-instance).
 1. Install the required packages
 ```
 sudo apt -y update
@@ -82,6 +82,7 @@ cd free5gmano
 ```
 pip install -r requirements.txt
 ```
+
 5. Apply environment variable
 ```
 echo 'export FREE5GMANO_MYSQL_USER=<your mysql user>' >> ~/.bashrc
@@ -92,9 +93,10 @@ echo 'export FREE5GMANO_NM=127.0.0.1:8000' >> ~/.bashrc
 echo 'export FREE5GMANO_NFVO=<your nfvo ip>:<your nfvo port>' >> ~/.bashrc
 source ~/.bashrc
 ```
+
 6. Create a database
 ```
-mysql -h $FREE5GMANO_MYSQL_HOST -u $FREE5GMANO_MYSQL_USER -p$FREE5GMANO_MYSQL_PASSWORD
+mysql -u $FREE5GMANO_MYSQL_USER -p$FREE5GMANO_MYSQL_PASSWORD
 CREATE DATABASE free5gmano;
 ```
 7. Database migrate
