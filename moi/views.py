@@ -82,11 +82,6 @@ class TaskThread(threading.Thread):
                         requests.post(url=self.callback_uri, json=_data, headers=header)
                 pre_value_list = value_list
 
-        # while not self.stop:
-        #     time.sleep(self.time_tick)
-        #
-        #     print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "%s" % (self.getName(),))
-
 
 class MultipleSerializerViewSet(ModelViewSet):
     def get_serializer_class(self):
@@ -130,14 +125,6 @@ class ObjectManagement(ModelViewSet):
         if not Scope.has_value(scope_seq[0]):
             return JsonResponse(response_data, status=400)
 
-        # if not Scope.has_value(scope_seq[0]):
-        #     response = JsonResponse(response_data, status=400)
-        #     response["Access-Control-Allow-Origin"] = "*"
-        #     response["Access-Control-Allow-Methods"] = "GET"
-        #     response["Access-Control-Max-Age"] = "1000"
-        #     response["Access-Control-Allow-Headers"] = "*"
-        #     return response
-
         moi_serializer_class.Meta.depth = get_scope_level(scope_seq[0], scope_seq[1])
 
         try:
@@ -160,7 +147,6 @@ class ObjectManagement(ModelViewSet):
                          'attributeListOut': moi_object_serializer.data}
 
         return JsonResponse(response_data, status=200)
-        # return response_cors(request.method, JsonResponse(response_data, status=100))
     
     @csrf_exempt
     @action(detail=True, methods='PATCH', name='modifyMOIAttributes')
@@ -461,3 +447,331 @@ class NotificationView(ModelViewSet):
             The DELETE method deletes an individual Notification resource.
         """
         return super().destroy(request, *args, **kwargs)
+
+
+class TopologyView(GenericViewSet):
+    """ Topology Information
+    """
+    queryset = NetworkSliceSubnet.objects.all()
+    serializer_class = NetworkSliceSubnetTopologySerializer
+
+    def list(self, request):
+        """
+            Query Topology information.
+
+            The GET method queries the information of the Topology matching the filter.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.serializer_class(queryset, many=True)
+        nsinfo_object = serializer.data
+        response_list = list()
+        link_count = 0
+        for element in nsinfo_object:
+            response = {
+                "links": [],
+                "nodes": []
+            }
+            if element['nsInfo']:
+                # Consist topology Network Slice Subnet Instance
+                if element['nsInfo']['nsInstanceName'] != None:
+                    response['nodes'].append({
+                        "id": element['nssiId'],
+                        "name": element['nsInfo']['nsInstanceName'],
+                        "symbolSize": 10,
+                        "symbol": "roundRect",
+                        "attributes": {
+                            "modularity_class": 0
+                        }
+                    })
+                else:
+                    response['nodes'].append({
+                        "id": element['nssiId'],
+                        "name": element['nsInfo']['nsInstanceDescription'],
+                        "symbolSize": 10,
+                        "symbol": "roundRect",
+                        "attributes": {
+                            "modularity_class": 0
+                        }
+                    })
+                nsinfo = eval(element['nsInfo']['vnfInstance'])
+                if 'nsInstanceName' in nsinfo:
+                    for _ in nsinfo:
+                        addresses = str()
+                        cp_id = str()
+                        vnf_state =_['instantiatedVnfInfo']['vnfState']
+                        for extCpInfo in _['instantiatedVnfInfo']['extCpInfo']:
+                            cp_id = extCpInfo['id']
+                            cp_protocol_info = extCpInfo['cpProtocolInfo']
+                            ip_over_ethernet = cp_protocol_info[0]['ipOverEthernet']
+                            ip_addresses = ip_over_ethernet['ipAddresses']
+                            if ip_addresses[0]['isDynamic']:
+                                addresses = ip_addresses[0]['addresses']
+
+                        # Consist topology VNF Instance
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "triangle",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                        # Consist topology relation VNF Instance <-> Network Service Instance
+                        response['links'].append({
+                            "id": str(link_count),
+                            "source": element['nssiId'],
+                            "target": _['id']
+                        })
+                        link_count += 1
+                else:
+                    print('Tacker Topology')
+                    for _ in nsinfo:
+                        response['nodes'].append({
+                            "id": nsinfo[_],
+                            "name": _,
+                            "instantiationState": None,
+                            "vnfState": None,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/p-qlD6cG49XFnGtZVmrtr7TfmdEjMSkBYkVZvl_Al6xC1pK87EGDUhoo2EcJBHY6DKIPLE8P9PxqF_ps1AFnu4P5DSFQdbEAUd_QYbzmF_Iu1Xs7XZ3umSpDD3VibL3fKJ9GicqQew=s315-p-k",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": None
+                        })
+                        response['links'].append({
+                            "id": str(link_count),
+                            "source": element['nssiId'],
+                            "target": nsinfo[_]
+                        })
+                        link_count += 1
+
+                response_list.append(response)
+        return response_cors(request.method, JsonResponse(response_list, safe=False))
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+            Read information about an individual Topology resource.
+
+            The GET method reads the information of a Topology.
+        """
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        nsinfo_object = serializer.data
+        response = {
+            "links": [],
+            "nodes": []
+        }
+        link_count = 0
+        if nsinfo_object['nsInfo']:
+            if nsinfo_object['nsInfo']['nsInstanceName'] != None:
+                response['nodes'].append({
+                    "id": nsinfo_object['nssiId'],
+                    "name": nsinfo_object['nsInfo']['nsInstanceName'],
+                    "symbolSize": 10,
+                    "symbol": "roundRect",
+                    "attributes": {
+                        "modularity_class": 0
+                    }
+                })
+            else:
+                response['nodes'].append({
+                    "id": nsinfo_object['nssiId'],
+                    "name": nsinfo_object['nsInfo']['nsInstanceDescription'],
+                    "symbolSize": 10,
+                    "symbol": "roundRect",
+                    "attributes": {
+                        "modularity_class": 0
+                    }
+                })
+            nsinfo = eval(nsinfo_object['nsInfo']['vnfInstance'])
+            if 'nsInstanceName' in nsinfo:
+                for _ in nsinfo:
+                    addresses = str()
+                    cp_id = str()
+                    vnf_state =_['instantiatedVnfInfo']['vnfState']
+                    for extCpInfo in _['instantiatedVnfInfo']['extCpInfo']:
+                        cp_id = extCpInfo['id']
+                        cp_protocol_info = extCpInfo['cpProtocolInfo']
+                        ip_over_ethernet = cp_protocol_info[0]['ipOverEthernet']
+                        ip_addresses = ip_over_ethernet['ipAddresses']
+                        if ip_addresses[0]['isDynamic']:
+                            addresses = ip_addresses[0]['addresses']
+
+                    # Consist topology VNF Instance
+                    if _['vnfProductName'] == "upf":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/tDq5MNIeqdyUibCoHGUFhFvTi5JSM6-PZ6qec5_yBrGx0fBELl0tYrnWcvOn3TpLeWzcP-qxISW9BHYvFkF6CMREi-tJcmO2eMxLTgPvSBSYX8MZWWjNJd6WFQF-iEXW7oWy476RVA=w2400",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                    elif _['vnfProductName'] == "hss":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/6D1Mz9o4gBb4g-MSN4p0mKCWz4-PXk-K_ZkAcTQLR1YUyS_PCX-pORu6X9uyRJ_Ve1GlBX4ZL2Bb00sdymga2jRcCOG3nPPVte4JBeoW8cQxaju4BuNFhSkKAeXB0OxYW2HUVEXSHg=w2400",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                    elif _['vnfProductName'] == "amf":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/4lyf2bW5dKmJ9ygvXL6a9nd8SNP1RABQtcsS6nFLWyeb3W3y27gay4ujcPmmFhKj737C60IZoUcfnn8eUosl_h_qQoIMnQJmbssSwkQ4I3rC8lReRSfcZjuGbj8Xpgpb9PS2nvYWew=w2400",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                    elif _['vnfProductName'] == "smf":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/i5IXbaptWGdvp74uIEzVfN6nMu6YmblUSA_iPy68sD1FOL31VZuvuE0RQB83iQ-CxptFdkM-ku1ey7tSVzaro2jjIBTIOOpfNzEQA_f84YeJwbP1Fwr7xJOB_r6Tls99c5iOO3WAPg=w2400",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                    elif _['vnfProductName'] == "mongodb":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/xwIxuvxi4_wFwaMEw8mi2FqpI1K_SCGy1DGQsedj-aYAfPvjkEtYFmjKu_nrBJck-WxhcJifG6QdC4PY5jdqt3zkIER058P0f1QLS-rvdwOeOkmz9OaZeRLppwd4k3YyJgl36aiq-A=w2400",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                    elif _['vnfProductName'] == "webui":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/_p7-L94qZANyy4rN_ygdTHYJU7aYLwAUok5EY5VhdbJhESShkMAcctymFhYzX3nM9MccqG2hJLrJ1618ZMz2fWefgz0_RTPl8LWvhb3eNoziJpHHwTai0t8xymvS3JRmjFGuqoFJQA=w2400",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                    elif _['vnfProductName'] == "pcrf":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/dp_CZZ6Nn3AKb1WUsawXnvWcIWxz4iXvn4vx0wGjidaV1wSTld3CPfGAZTc-8RqLIX-xeodWKAzuHO5btB37PMbJFYu3J7cwuXD2ya2w0U9D4bIazhK4SrABzr8x-8wRHkz0iI_1fA=w2400",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                    elif _['vnfProductName'] == "ausf":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/-R2wrpgEVBdXZfpujbLQkhuIWgaHQi4Vka-BLLDxzX8J4XYNRF-HJx3TsAoBXQHuskFJveYx9v1lQij37730EJKUraPlR2mWYt7OLoa8m1bmH2coQzAN2WGGo3htq6GdJyNkJHLUnA=s314-p-k",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                    elif _['vnfProductName'] == "nssf":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/mYCmjpPMPhdWG_34KLVqEeTUM5DXQ8u1EK4lMCyiXaa4W-fCioeNgxbgzuQS8j-vcCn6Cnh2r7zGNNpdnAA3VjzgPykGrHbPCvM3NfMzgxf_1lW379FEkcOjqNMa1QzVUSHEam2ykw=s314-p-k",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                    elif _['vnfProductName'] == "udm":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/iSgkP7Bfr0HWSSUkEt521Ka6rhbn9PmbNUb_fy0Ck3KD4Vn0YbV5egWqaqfGfvMk87DLpLywheYa6BBzkeffMfJNdFRkbr3nBTd-kJRyEp0Dl29egXQz9Kkr-WeFO3CslXxX1cnJHw=s314-p-k",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                    elif _['vnfProductName'] == "udr":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/ygnGeIaEUK7Y4e5T96FBOgfWehLURMaIH6Ev_PKoOv1MbDZoH0lM_cHNkskRo9C1CpsMWsgqYaKuvk-xO-X0GtxNNZKphkaicPfztQhkzV_vZdndvrfQZIanbcALElNWroEHwef2yg=s314-p-k",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+
+                    # Consist topology relation VNF Instance <-> Network Service Instance
+                    response['links'].append({
+                        "id": str(link_count),
+                        "source": nsinfo_object['nssiId'],
+                        "target": _['id']
+                    })
+                    link_count += 1
+            else:
+                print('Tacker Topology')
+                for _ in nsinfo:
+                    response['nodes'].append({
+                        "id": nsinfo[_],
+                        "name": _,
+                        "instantiationState": None,
+                        "vnfState": None,
+                        "symbolSize": 10,
+                        "symbol": "image://https://lh3.googleusercontent.com/p-qlD6cG49XFnGtZVmrtr7TfmdEjMSkBYkVZvl_Al6xC1pK87EGDUhoo2EcJBHY6DKIPLE8P9PxqF_ps1AFnu4P5DSFQdbEAUd_QYbzmF_Iu1Xs7XZ3umSpDD3VibL3fKJ9GicqQew=s315-p-k",
+                        "attributes": {
+                            "modularity_class": 1
+                        },
+                        "address": None
+                    })
+                    response['links'].append({
+                        "id": str(link_count),
+                        "source": nsinfo_object['nssiId'],
+                        "target": nsinfo[_]
+                    })
+                    link_count += 1
+        return response_cors(request.method, JsonResponse(response))
