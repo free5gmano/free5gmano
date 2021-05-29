@@ -86,7 +86,6 @@ class GenericTemplateView(MultipleSerializerViewSet):
     def list(self, request, *args, **kwargs):
         """
             Query Generic Template information.
-
             The GET method queries the information of the Generic Template matching the filter.
         """
         return super().list(request, *args, **kwargs)
@@ -94,7 +93,6 @@ class GenericTemplateView(MultipleSerializerViewSet):
     def create(self, request, *args, **kwargs):
         """
             Create a new individual Generic Template resource.
-
             The POST method creates a new individual Generic Template resource.
         """
         return super().create(request, *args, **kwargs)
@@ -102,7 +100,6 @@ class GenericTemplateView(MultipleSerializerViewSet):
     def retrieve(self, request, *args, **kwargs):
         """
             Read information about an individual Generic Template resource.
-
             The GET method reads the information of a Generic Template.
         """
         return super().retrieve(request, *args, **kwargs)
@@ -110,7 +107,6 @@ class GenericTemplateView(MultipleSerializerViewSet):
     def update(self, request, *args, **kwargs):
         """
             Update information about an individual Generic Template resource.
-
             The PATCH method updates the information of a Generic Template.
         """
         return super().update(request, *args, **kwargs)
@@ -118,7 +114,6 @@ class GenericTemplateView(MultipleSerializerViewSet):
     def destroy(self, request, *args, **kwargs):
         """
             Delete an individual Generic Template.
-
             The DELETE method deletes an individual Generic Template resource.
         """
         file = self.get_object().templateFile
@@ -135,7 +130,6 @@ class GenericTemplateView(MultipleSerializerViewSet):
     def upload(self, request, *args, **kwargs):
         """
             Upload a Generic Template by providing the content of the Generic Template.
-
             The PUT method uploads the content of a Generic Template.
         """
         path = os.path.join(
@@ -181,15 +175,9 @@ class GenericTemplateView(MultipleSerializerViewSet):
     def example_download(self, request, *args, **kwargs):
         """
             Download an individual Generic Template.
-
             The GET method reads the content of the Generic Template.
         """
         source_path = os.getcwd()
-        # download_query = self.queryset.filter(templateFile=kwargs['path'])
-        # if download_query:
-        #     with download_query[0].templateFile.open() as f:
-        #         return HttpResponse(f.read(), content_type="application/zip")
-        # else:
         example_file = os.path.join(settings.BASE_DIR, 'nssmf', 'template_example',
                                     kwargs['example'], kwargs['path'].split('/')[0])
         os.chdir(example_file)
@@ -207,8 +195,7 @@ class GenericTemplateView(MultipleSerializerViewSet):
     @action(detail=False, methods=['get'], url_path='download/(?P<path>(.)*)')
     def download(self, request, *args, **kwargs):
         """
-            Download an individual Generic Template.
-
+            Download an individual Generic Template for Free5Gmano Dashboard.
             The GET method reads the content of the Generic Template.
         """
         download_query = self.queryset.filter(templateFile=kwargs['path'])
@@ -232,7 +219,6 @@ class SliceTemplateView(MultipleSerializerViewSet):
     def list(self, request, *args, **kwargs):
         """
             Query Slice Template information.
-
             The GET method queries the information of the Slice Template matching the filter.
         """
         return super().list(request, *args, **kwargs)
@@ -240,7 +226,6 @@ class SliceTemplateView(MultipleSerializerViewSet):
     def create(self, request, *args, **kwargs):
         """
             Create a new individual Slice Template resource.
-
             The POST method creates a new individual Slice Template resource.
         """
         return super().create(request, *args, **kwargs)
@@ -248,7 +233,6 @@ class SliceTemplateView(MultipleSerializerViewSet):
     def retrieve(self, request, *args, **kwargs):
         """
             Read information about an individual Slice Template resource.
-
             The GET method reads the information of a Slice Template.
         """
         return super().retrieve(request, *args, **kwargs)
@@ -256,7 +240,6 @@ class SliceTemplateView(MultipleSerializerViewSet):
     def update(self, request, *args, **kwargs):
         """
             Update information about an individual Slice Template resource.
-
             The PATCH method updates the information of a Slice Template.
         """
         return super().update(request, *args, **kwargs)
@@ -264,7 +247,6 @@ class SliceTemplateView(MultipleSerializerViewSet):
     def destroy(self, request, *args, **kwargs):
         """
             Delete an individual Slice Template.
-
             The DELETE method deletes an individual Slice Template resource.
         """
         return super().destroy(request, *args, **kwargs)
@@ -279,7 +261,6 @@ class ProvisioningView(GenericViewSet, mixins.CreateModelMixin, mixins.DestroyMo
     def create(self, request, *args, **kwargs):
         """
             Allocate Network Slice Subnet Instance.
-
             Allocate a new individual Network Slice Subnet Instance
         """
         data = request.data['attributeListIn']
@@ -323,7 +304,6 @@ class ProvisioningView(GenericViewSet, mixins.CreateModelMixin, mixins.DestroyMo
     def destroy(self, request, *args, **kwargs):
         """
             Deallocate Network Slice Subnet Instance.
-
             Deallocate a new individual Network Slice Subnet Instance
         """
         response_data = dict()
@@ -367,7 +347,6 @@ class ServiceMappingPluginView(ModelViewSet):
     def list(self, request, *args, **kwargs):
         """
             Read information about an individual Service Mapping Plugin resource.
-
             The GET method reads the information of a Service Mapping Plugin.
         """
         return super().list(self, request, args, kwargs)
@@ -375,7 +354,6 @@ class ServiceMappingPluginView(ModelViewSet):
     def create(self, request, *args, **kwargs):
         """
             Create a new individual Service Mapping Plugin resource.
-
             The POST method creates a new individual Service Mapping Plugin resource.
         """
         return super().create(request, *args, **kwargs)
@@ -383,7 +361,6 @@ class ServiceMappingPluginView(ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """
             Query Service Mapping Plugin information.
-
             The GET method queries the information of the Service Mapping Plugin \
             matching the filter.
         """
@@ -392,7 +369,6 @@ class ServiceMappingPluginView(ModelViewSet):
     def update(self, request, *args, **kwargs):
         """
             Update information about an individual Service Mapping Plugin resource.
-
             The PATCH method updates the information of a Service Mapping Plugin.
         """
         return super().update(request, *args, **kwargs)
@@ -400,7 +376,6 @@ class ServiceMappingPluginView(ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         """
             Delete an individual Service Mapping Plugin.
-
             The DELETE method deletes an individual Service Mapping Plugin resource.
         """
         self_object = self.get_object()
@@ -420,7 +395,6 @@ class ServiceMappingPluginView(ModelViewSet):
     def download(self, request, *args, **kwargs):
         """
             Download an individual Service Mapping Plugin.
-
             The GET method reads the content of the Service Mapping Plugin.
         """
         try:

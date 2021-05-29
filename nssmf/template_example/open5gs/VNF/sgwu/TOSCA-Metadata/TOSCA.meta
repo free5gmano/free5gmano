@@ -1,0 +1,8 @@
+TOSCA-Meta-File-Version: 1.0
+CSAR-Version: 1.1
+Created-By: imac
+Entry-Definitions: Definitions/sgwu.yaml
+ETSI-Entry-Manifest: sgwu.mf
+ETSI-Entry-Change-Log: Files/ChangeLog.txt
+ETSI-Entry-Licenses: Files/Licenses
+ETSI-Entry-Artifacts: Files/Artifacts/sgwucfg.conf

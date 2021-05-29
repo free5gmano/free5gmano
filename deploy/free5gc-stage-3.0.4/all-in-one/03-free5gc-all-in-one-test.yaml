@@ -1,0 +1,138 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: free5gc-test-deployment-all-in-one
+spec:
+  selector:
+    matchLabels:
+      app: free5gc-test-all-in-one
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: free5gc-test-all-in-one
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/free5gc-test-all-in-one:stage3.0.4
+        securityContext:
+          privileged: true
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "ip addr add 60.60.0.1 dev lo && ip link set dev lo up && (nohup /usr/bin/mongod --dbpath=/data/db/ > mongo.log 2>&1 &) && sleep 365d"]
+        volumeMounts:
+        - name: amfcfg
+          mountPath: /go/src/free5gc/config/amfcfg.conf
+          subPath: amfcfg.conf
+        - name: nrfcfg
+          mountPath: /go/src/free5gc/config/nrfcfg.conf
+          subPath: nrfcfg.conf
+        - name: ausfcfg
+          mountPath: /go/src/free5gc/config/ausfcfg.conf
+          subPath: ausfcfg.conf
+        - name: nssfcfg
+          mountPath: /go/src/free5gc/config/nssfcfg.conf
+          subPath: nssfcfg.conf
+        - name: pcfcfg
+          mountPath: /go/src/free5gc/config/pcfcfg.conf
+          subPath: pcfcfg.conf
+        - name: smfcfg
+          mountPath: /go/src/free5gc/config/test/smfcfg.test.conf
+          subPath: smfcfg.conf
+        - name: uerouting
+          mountPath: /go/src/free5gc/config/uerouting.yaml
+          subPath: uerouting.yaml
+        - name: udmcfg
+          mountPath: /go/src/free5gc/config/udmcfg.conf
+          subPath: udmcfg.conf
+        - name: udrcfg
+          mountPath: /go/src/free5gc/config/udrcfg.conf
+          subPath: udrcfg.conf
+        - name: free5gc
+          mountPath: /go/src/free5gc/config/free5GC.conf
+          subPath: free5GC.conf
+      initContainers:
+      - name: init-network-client
+        image: sdnvortex/network-controller:v0.4.9
+        command: ["/go/bin/client"]
+        args: ["-s=unix:///tmp/vortex.sock", "-b=br0", "-n=eth1", "-i=192.168.2.210/23"]
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_UUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        volumeMounts:
+        - mountPath: /tmp/
+          name: grpc-sock
+      volumes:
+      - name: grpc-sock
+        hostPath:
+          path: /tmp/vortex/
+      - name: amfcfg
+        configMap:
+          name: free5gc-configmap
+          items: 
+          - key: amfcfg.conf
+            path: amfcfg.conf
+      - name: ausfcfg
+        configMap:
+          name: free5gc-configmap
+          items: 
+          - key: ausfcfg.conf
+            path: ausfcfg.conf
+      - name: nrfcfg
+        configMap:
+          name: free5gc-configmap
+          items: 
+          - key: nrfcfg.conf
+            path: nrfcfg.conf
+      - name: nssfcfg
+        configMap:
+          name: free5gc-configmap
+          items: 
+          - key: nssfcfg.conf
+            path: nssfcfg.conf
+      - name: pcfcfg
+        configMap:
+          name: free5gc-configmap
+          items: 
+          - key: pcfcfg.conf
+            path: pcfcfg.conf
+      - name: smfcfg
+        configMap:
+          name: free5gc-configmap
+          items: 
+          - key: smfcfg.conf
+            path: smfcfg.conf
+      - name: uerouting
+        configMap:
+          name: free5gc-configmap
+          items: 
+          - key: uerouting.yaml
+            path: uerouting.yaml
+      - name: udmcfg
+        configMap:
+          name: free5gc-configmap
+          items: 
+          - key: udmcfg.conf
+            path: udmcfg.conf
+      - name: udrcfg
+        configMap:
+          name: free5gc-configmap
+          items: 
+          - key: udrcfg.conf
+            path: udrcfg.conf
+      - name: free5gc
+        configMap:
+          name: free5gc-configmap
+          items: 
+          - key: free5GC.conf
+            path: free5GC.conf
