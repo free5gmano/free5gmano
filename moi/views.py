@@ -494,7 +494,7 @@ class TopologyView(GenericViewSet):
                         }
                     })
                 nsinfo = eval(element['nsInfo']['vnfInstance'])
-                if 'nsInstanceName' in nsinfo:
+                if 'nsInstanceName' in element['nsInfo']:
                     for _ in nsinfo:
                         addresses = str()
                         cp_id = str()
@@ -588,7 +588,7 @@ class TopologyView(GenericViewSet):
                     }
                 })
             nsinfo = eval(nsinfo_object['nsInfo']['vnfInstance'])
-            if 'nsInstanceName' in nsinfo:
+            if 'nsInstanceName' in nsinfo_object['nsInfo']:
                 for _ in nsinfo:
                     addresses = str()
                     cp_id = str()
