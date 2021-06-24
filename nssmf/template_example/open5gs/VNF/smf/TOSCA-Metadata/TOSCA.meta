@@ -1,0 +1,8 @@
+TOSCA-Meta-File-Version: 1.0
+CSAR-Version: 1.1
+Created-By: imac
+Entry-Definitions: Definitions/smf.yaml
+ETSI-Entry-Manifest: smf.mf
+ETSI-Entry-Change-Log: Files/ChangeLog.txt
+ETSI-Entry-Licenses: Files/Licenses
+ETSI-Entry-Artifacts: Files/Artifacts/smfcfg.conf, Files/Artifacts/open5gs.conf
