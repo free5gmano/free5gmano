@@ -15,6 +15,8 @@ router.register(r'ObjectManagement/subscriptions', SubscriptionView,
                 basename='Subscription')
 router.register(r'ObjectManagement/provisioningNotifications', NotificationView,
                 basename='Notification')
+router.register(r'ObjectManagement/NSS/topology', TopologyView,
+                basename='Topology')
 
 urlpatterns = [
     url(r'^', include(router.urls)),
