@@ -746,6 +746,45 @@ class TopologyView(GenericViewSet):
                             },
                             "address": addresses
                         })
+                    elif _['vnfProductName'] == "nrf":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/ygnGeIaEUK7Y4e5T96FBOgfWehLURMaIH6Ev_PKoOv1MbDZoH0lM_cHNkskRo9C1CpsMWsgqYaKuvk-xO-X0GtxNNZKphkaicPfztQhkzV_vZdndvrfQZIanbcALElNWroEHwef2yg=s314-p-k",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                    elif _['vnfProductName'] == "pcf":
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/ygnGeIaEUK7Y4e5T96FBOgfWehLURMaIH6Ev_PKoOv1MbDZoH0lM_cHNkskRo9C1CpsMWsgqYaKuvk-xO-X0GtxNNZKphkaicPfztQhkzV_vZdndvrfQZIanbcALElNWroEHwef2yg=s314-p-k",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
+                    else:
+                        response['nodes'].append({
+                            "id": _['id'],
+                            "name": _['vnfProductName'],
+                            "instantiationState": _['instantiationState'],
+                            "vnfState": vnf_state,
+                            "symbolSize": 10,
+                            "symbol": "image://https://lh3.googleusercontent.com/p-qlD6cG49XFnGtZVmrtr7TfmdEjMSkBYkVZvl_Al6xC1pK87EGDUhoo2EcJBHY6DKIPLE8P9PxqF_ps1AFnu4P5DSFQdbEAUd_QYbzmF_Iu1Xs7XZ3umSpDD3VibL3fKJ9GicqQew=s315-p-k",
+                            "attributes": {
+                                "modularity_class": 1
+                            },
+                            "address": addresses
+                        })
 
                     # Consist topology relation VNF Instance <-> Network Service Instance
                     response['links'].append({
