@@ -68,7 +68,6 @@ kind: Service
 metadata:
   name: free5gmano-mysql
 spec:
-  type: ClusterIP
   ports:
   - name: mysql
     port: 3306
