@@ -1,9 +1,9 @@
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
-RUN apt update && apt install -y libssl-dev python3 python3-pip git libmysqlclient-dev
+RUN apt update && apt install -y libssl-dev python3-pip git libmysqlclient-dev
 
 WORKDIR /
-RUN git clone https://github.com/free5gmano/free5gmano.git && cd free5gmano/ && git checkout v2.2.0
+RUN git clone https://github.com/free5gmano/free5gmano.git
 WORKDIR free5gmano/
 RUN pip3 install -r requirements.txt
 

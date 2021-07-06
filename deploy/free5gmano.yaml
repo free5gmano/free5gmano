@@ -15,7 +15,6 @@ spec:
       containers:
         - name: free5gmano
           image: free5gmano/free5gmano
-          imagePullPolicy: Always
           env:
             - name: FREE5GMANO_MYSQL_USER
               value: "root"
