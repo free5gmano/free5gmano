@@ -53,7 +53,7 @@ spec:
           path: /tmp/vortex/
       - name: gnb-conf
         configMap:
-          name: ueransim-configmap
+          name: ueransim-multi-ue-configmap
           items:
           - key: free5gc-gnb.yaml
             path: free5gc-gnb.yaml
