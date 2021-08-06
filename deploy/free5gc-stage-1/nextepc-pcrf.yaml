@@ -14,7 +14,7 @@ spec:
     spec:
       containers:      
       - name: myapp-container
-        image: cewuandy/free5gc-base
+        image: free5gmano/free5gc-stage-1
         imagePullPolicy: Always
         command: ["/bin/sh"]
         args: ["-c", "/root/free5gc/nextepc-pcrfd"]

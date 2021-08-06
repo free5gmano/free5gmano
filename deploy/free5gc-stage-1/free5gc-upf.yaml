@@ -14,7 +14,7 @@ spec:
     spec:
       containers:      
       - name: free5gc-upf-container
-        image: cewuandy/free5gc-base
+        image: free5gmano/free5gc-stage-1
         securityContext:
           privileged: true
         command: ["/bin/sh"]
