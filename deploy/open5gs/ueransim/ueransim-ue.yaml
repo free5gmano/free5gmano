@@ -17,7 +17,7 @@ spec:
       containers:
       - name: ueransim-ue
         imagePullPolicy: IfNotPresent
-        image: free5gmano/ueransim:v3.1.0
+        image: free5gmano/ueransim:v3.1.4
         securityContext:
           privileged: true
         command: ["/bin/bash", "-c"]
