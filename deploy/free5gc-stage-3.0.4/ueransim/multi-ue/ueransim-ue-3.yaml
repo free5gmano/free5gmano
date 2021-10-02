@@ -1,36 +1,38 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ueransim-gnb-deployment
+  name: ueransim-ue-3-deployment
   labels:
-    app: ueransim-gnb
+    app: ueransim-ue-3
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ueransim-gnb
+      app: ueransim-ue-3
   template:
     metadata:
       labels:
-        app: ueransim-gnb
+        app: ueransim-ue-3
     spec:
       containers:
-      - name: ueransim-gnb
+      - name: ueransim-ue
         imagePullPolicy: IfNotPresent
         image: free5gmano/ueransim:v3.1.4
         securityContext:
           privileged: true
         command: ["/bin/bash", "-c"]
-        args: ["./build/nr-gnb -c ./config/open5gs-gnb.yaml"]
+        args: ["./build/nr-ue -c ./config/free5gc-ue.yaml"]
         volumeMounts:
-        - name: gnb-conf
-          mountPath: /UERANSIM/config/open5gs-gnb.yaml
-          subPath: open5gs-gnb.yaml
+        - mountPath: /dev/net/tun
+          name: tun-volume
+        - name: ue-conf
+          mountPath: /UERANSIM/config/free5gc-ue.yaml
+          subPath: free5gc-ue-3.yaml
       initContainers:
       - name: init-network-client
         image: sdnvortex/network-controller:v0.4.9
         command: ["/go/bin/client"]
-        args: ["-s=unix:///tmp/vortex.sock", "-b=br0", "-n=eth1", "-i=192.168.2.18/23", "-g=192.168.3.254"]
+        args: ["-s=unix:///tmp/vortex.sock", "-b=br0", "-n=eth1", "-i=192.168.2.21/23", "-g=192.168.3.254"]
         env:
         - name: POD_NAME
           valueFrom:
@@ -51,9 +53,12 @@ spec:
       - name: grpc-sock
         hostPath:
           path: /tmp/vortex/
-      - name: gnb-conf
+      - name: tun-volume
+        hostPath:
+          path: /dev/net/tun
+      - name: ue-conf
         configMap:
-          name: ueransim-configmap
+          name: ueransim-multi-ue-configmap
           items: 
-          - key: open5gs-gnb.yaml
-            path: open5gs-gnb.yaml
+          - key: free5gc-ue-3.yaml
+            path: free5gc-ue-3.yaml
