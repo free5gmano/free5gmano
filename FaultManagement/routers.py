@@ -10,7 +10,8 @@ class CustomReadOnlyRouter(SimpleRouter):
             mapping={
                 'get': 'list',
                 'post': 'create',
-                'delete': 'destroy',
+                'delete': 'all_destroy',
+                # 'delete': 'destroy',
             },
             name='{basename}-list',
             detail=False,
@@ -29,6 +30,7 @@ class CustomReadOnlyRouter(SimpleRouter):
             url=r'^{prefix}/{lookup}{trailing_slash}$',
             mapping={
                 'get': 'retrieve',
+                'put': 'update',
                 'patch': 'partial_update',
                 'delete': 'destroy'
             },
