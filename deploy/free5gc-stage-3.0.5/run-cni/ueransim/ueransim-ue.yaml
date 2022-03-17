@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ueransim-ue-deployment
+  labels:
+    app: ueransim-ue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ueransim-ue
+  template:
+    metadata:
+      labels:
+        app: ueransim-ue
+    spec:
+      containers:
+      - name: ueransim-ue
+        image: free5gmano/ueransim:v3.1.4
+        securityContext:
+          privileged: true
+        command: ["/bin/bash", "-c"]
+        args: ["./build/nr-ue -c ./config/free5gc-ue.yaml"]
+        volumeMounts:
+        - mountPath: /dev/net/tun
+          name: tun-volume
+        - name: ue-conf
+          mountPath: /UERANSIM/config/free5gc-ue.yaml
+          subPath: free5gc-ue.yaml
+      volumes:
+      - name: tun-volume
+        hostPath:
+          path: /dev/net/tun
+      - name: ue-conf
+        configMap:
+          name: ueransim-configmap
+          items: 
+          - key: free5gc-ue.yaml
+            path: free5gc-ue.yaml
