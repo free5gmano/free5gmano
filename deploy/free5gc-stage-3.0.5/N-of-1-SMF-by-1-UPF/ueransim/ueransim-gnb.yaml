@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ueransim-gnb-configmap
+data: 
+  free5gc-gnb.yaml: |
+    mcc: '208'          # Mobile Country Code value
+    mnc: '93'           # Mobile Network Code value (2 or 3 digits)
+    nci: '0x0000000100' # NR Cell Identity (36-bit)
+    idLength: 32        # NR gNB ID length in bits [22...32]
+    tac: 1              # Tracking Area Code
+    linkIp: 192.168.2.170   # gNB's local IP address for Radio Link Simulation (Usually same with local IP)
+    ngapIp: 192.168.2.170   # gNB's local IP address for N2 Interface (Usually same with local IP)
+    gtpIp: 192.168.2.170    # gNB's local IP address for N3 Interface (Usually same with local IP)
+    # List of AMF address information
+    amfConfigs:
+      - address: 192.168.2.162
+        port: 38412
+    # List of supported S-NSSAIs by this gNB
+    slices:
+      - sst: 0x1
+        sd: 0x010203
+    # Indicates whether or not SCTP stream number errors should be ignored.
+    ignoreStreamIds: true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ueransim-gnb-deployment
+  labels:
+    app: ueransim-gnb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ueransim-gnb
+  template:
+    metadata:
+      labels:
+        app: ueransim-gnb
+    spec:
+      containers:
+      - name: ueransim-gnb
+        imagePullPolicy: IfNotPresent
+        image: j13tw/ueransim:latest
+        securityContext:
+          privileged: true
+        command: ["/bin/bash", "-c"]
+        args: ["./build/nr-gnb -c ./config/free5gc-gnb.yaml"]
+        volumeMounts:
+        - name: gnb-conf
+          mountPath: /UERANSIM/config/free5gc-gnb.yaml
+          subPath: free5gc-gnb.yaml
+      initContainers:
+      - name: init-network-client
+        image: sdnvortex/network-controller:v0.4.9
+        command: ["/go/bin/client"]
+        args: ["-s=unix:///tmp/vortex.sock", "-b=br0", "-n=eth1", "-i=192.168.2.170/23"]
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_UUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        volumeMounts:
+        - mountPath: /tmp/
+          name: grpc-sock
+      volumes:
+      - name: grpc-sock
+        hostPath:
+          path: /tmp/vortex/
+      - name: gnb-conf
+        configMap:
+          name: ueransim-gnb-configmap
+          items: 
+          - key: free5gc-gnb.yaml
+            path: free5gc-gnb.yaml
