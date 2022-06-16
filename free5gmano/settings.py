@@ -68,14 +68,15 @@ INSTALLED_APPS = [
     "moi",
     'FaultManagement',
     'corsheaders',
+    'SecurityManagement',
 ]
-
+AUTH_USER_MODEL = 'SecurityManagement.ManoUser'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -106,18 +107,18 @@ WSGI_APPLICATION = 'free5gmano.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    #     'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # }
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': DATABASE_NAME,
-        'USER': DATABASE_USER,
-        'PASSWORD': DATABASE_PASSWORD,
-        'HOST': DATABASE_HOST,
-        'PORT': DATABASE_PORT,
+        'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': DATABASE_NAME,
+    #     'USER': DATABASE_USER,
+    #     'PASSWORD': DATABASE_PASSWORD,
+    #     'HOST': DATABASE_HOST,
+    #     'PORT': DATABASE_PORT,
+    # }
 }
 
 # Password validation
@@ -155,5 +156,21 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_HEADERS = ['*']
+
+
+# # 跨網域
+# CORS_ORIGIN_ALLOW_ALL = True # 為true不須CORS_ALLOW_WHITELIST
+# CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_WHITELIST = ()
+
+# 修改auth默認model
+# AUTH_USER_MODEL = 'basic.User'
+
+# "detail": "CSRF Failed: CSRF cookie not set."
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication'
+        # 'rest_framework.authentication.TokenAuthentication'
+    )
+}

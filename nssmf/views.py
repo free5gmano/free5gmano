@@ -22,6 +22,7 @@ import zipfile
 import importlib
 
 from django.http import JsonResponse, Http404, HttpResponse
+from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework import status, mixins
 from rest_framework.decorators import action
@@ -35,7 +36,47 @@ from nssmf.serializers import SliceTemplateSerializer, SliceTemplateRelationSeri
 from nssmf.models import SliceTemplate, GenericTemplate, ServiceMappingPluginModel, Content
 from nssmf.enums import OperationStatus, PluginOperationStatus
 from free5gmano import settings
+from SecurityManagement.models import ManoUser
 
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+
+import jwt
+
+def verify_token(request):
+    token = request.COOKIES.get("token")
+    name, message = str(), str()
+    if token:
+        try:
+            payload = jwt.decode(token, "mnmn5g", algorithm='HS256')
+            name = payload.get("name")
+        except jwt.ExpiredSignatureError:
+            message = 'token已失效'
+        except jwt.DecodeError:
+            message = 'token認證失敗'
+        except jwt.InvalidTokenError:
+            message = '非法的token'
+    else:
+        message = "無token"
+    return name, message
+
+def check_user(request):
+    uu_id, role, message = -1, "", ""
+    name, message = verify_token(request)
+    if not message:
+        user_obj = ManoUser.objects.filter(username=name).first()
+        if user_obj:
+            uu_id = user_obj.id
+            role = user_obj.role
+            if role not in ["tenant", "admin"]:
+                message = "該帳號未被授權"
+        else:
+            message = "查無使用者"
+    return uu_id, role, message
+
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+    # 跳過SessionAuthentication需要檢查csrf的步驟 
+    def enforce_csrf(self, request):
+        return
 
 class CustomAuthToken(ObtainAuthToken):
 
@@ -71,6 +112,7 @@ class GenericTemplateView(MultipleSerializerViewSet):
     """
     queryset = GenericTemplate.objects.all()
     serializer_class = MultipleSerializerViewSet.get_serializer_class
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
 
     @staticmethod
     def check(request, content, filename):
@@ -88,6 +130,17 @@ class GenericTemplateView(MultipleSerializerViewSet):
             Query Generic Template information.
             The GET method queries the information of the Generic Template matching the filter.
         """
+        uu_id, role, message = check_user(request)
+        if message:
+            return JsonResponse({
+                    "status": 1,
+                    "message": message
+                    })
+        if role == "admin":
+            self.queryset = GenericTemplate.objects.all()
+        else:
+            self.queryset = GenericTemplate.objects.filter(Q(user_id=uu_id)|Q(share=True))
+        
         return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
@@ -95,6 +148,19 @@ class GenericTemplateView(MultipleSerializerViewSet):
             Create a new individual Generic Template resource.
             The POST method creates a new individual Generic Template resource.
         """
+        uu_id, role, message = check_user(request)
+        if message:
+            return JsonResponse({
+                    "status": 1,
+                    "message": message
+                    })
+        name = str(request.user)
+        request.POST._mutable = True
+        request.POST.update({
+            "user_id": uu_id,
+            "user_name": name
+            })
+        request.POST._mutable = False
         return super().create(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
@@ -215,12 +281,23 @@ class SliceTemplateView(MultipleSerializerViewSet):
     """
     queryset = SliceTemplate.objects.all()
     serializer_class = MultipleSerializerViewSet.get_serializer_class
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
 
     def list(self, request, *args, **kwargs):
         """
             Query Slice Template information.
             The GET method queries the information of the Slice Template matching the filter.
         """
+        uu_id, role, message = check_user(request)
+        if message:
+            return JsonResponse({
+                    "status": 1,
+                    "message": message
+                    })
+        if role == "admin":
+            self.queryset = SliceTemplate.objects.all()
+        else:
+            self.queryset = SliceTemplate.objects.filter(Q(user_id=uu_id)|Q(share=True))
         return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
@@ -228,6 +305,19 @@ class SliceTemplateView(MultipleSerializerViewSet):
             Create a new individual Slice Template resource.
             The POST method creates a new individual Slice Template resource.
         """
+        uu_id, role, message = check_user(request)
+        if message:
+            return JsonResponse({
+                    "status": 1,
+                    "message": message
+                    })
+        name = str(request.user)
+        request.POST._mutable = True
+        request.POST.update({
+            "user_id": uu_id,
+            "user_name": name
+            })
+        request.POST._mutable = False
         return super().create(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
@@ -342,6 +432,7 @@ class ServiceMappingPluginView(ModelViewSet):
     """
     queryset = ServiceMappingPluginModel.objects.all()
     serializer_class = ServiceMappingPluginSerializer
+    authentication_classes = (CsrfExemptSessionAuthentication, BasicAuthentication)
     response_data = dict()
 
     def list(self, request, *args, **kwargs):
@@ -349,6 +440,16 @@ class ServiceMappingPluginView(ModelViewSet):
             Read information about an individual Service Mapping Plugin resource.
             The GET method reads the information of a Service Mapping Plugin.
         """
+        uu_id, role, message = check_user(request)
+        if message:
+            return JsonResponse({
+                    "status": 1,
+                    "message": message
+                    })
+        if role == "admin":
+            self.queryset = ServiceMappingPluginModel.objects.all()
+        else:
+            self.queryset = ServiceMappingPluginModel.objects.filter(Q(user_id=uu_id)|Q(share=True))
         return super().list(self, request, args, kwargs)
 
     def create(self, request, *args, **kwargs):
