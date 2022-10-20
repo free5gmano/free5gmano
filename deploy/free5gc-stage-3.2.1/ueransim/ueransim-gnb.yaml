@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ueransim-gnb-deployment
+  labels:
+    app: ueransim-gnb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ueransim-gnb
+  template:
+    metadata:
+      labels:
+        app: ueransim-gnb
+    spec:
+      containers:
+      - name: ueransim-gnb
+        imagePullPolicy: IfNotPresent
+        image: free5gmano/ueransim:v3.1.4
+        securityContext:
+          privileged: true
+        command: ["/bin/bash", "-c"]
+        args: ["./build/nr-gnb -c ./config/free5gc-gnb.yaml"]
+        volumeMounts:
+        - name: gnb-conf
+          mountPath: /UERANSIM/config/free5gc-gnb.yaml
+          subPath: free5gc-gnb.yaml
+      initContainers:
+      - name: init-network-client
+        image: sdnvortex/network-controller:v0.4.9
+        command: ["/go/bin/client"]
+        args: ["-s=unix:///tmp/vortex.sock", "-b=br1", "-n=eth1", "-i=192.168.2.18/23", "-g=192.168.3.254"]
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_UUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        volumeMounts:
+        - mountPath: /tmp/
+          name: grpc-sock
+      volumes:
+      - name: grpc-sock
+        hostPath:
+          path: /tmp/vortex/
+      - name: gnb-conf
+        configMap:
+          name: ueransim-configmap
+          items:
+          - key: free5gc-gnb.yaml
+            path: free5gc-gnb.yaml
