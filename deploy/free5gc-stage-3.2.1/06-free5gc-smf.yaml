@@ -43,7 +43,7 @@ data:
       pfcp: # the IP address of N4 interface on this SMF (PFCP)
         addr: 192.168.2.163
       userplane_information: # list of userplane information
-        up_nodes: # information of userplane node (AN or UPF)
+        upNodes: # information of userplane node (AN or UPF)
           gNB1: # the name of the node
             type: AN # the type of the node (AN or UPF)
           UPF:  # the name of the node

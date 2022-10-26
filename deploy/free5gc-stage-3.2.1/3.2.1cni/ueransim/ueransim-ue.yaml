@@ -26,7 +26,7 @@ data:
 
     # List of gNB IP addresses for Radio Link Simulation
     gnbSearchList:
-      - 192.168.223.24
+      - 10.244.0.15
 
     # UAC Access Identities Configuration
     uacAic:

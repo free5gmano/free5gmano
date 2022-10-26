@@ -11,13 +11,13 @@ data:
     idLength: 32        # NR gNB ID length in bits [22...32]
     tac: 1              # Tracking Area Code
 
-    linkIp: 192.168.223.24   # gNB's local IP address for Radio Link Simulation (Usually same with local IP)
-    ngapIp: 192.168.223.24   # gNB's local IP address for N2 Interface (Usually same with local IP)
-    gtpIp: 192.168.223.24    # gNB's local IP address for N3 Interface (Usually same with local IP)
+    linkIp: 10.244.0.15   # gNB's local IP address for Radio Link Simulation (Usually same with local IP)
+    ngapIp: 10.244.0.15   # gNB's local IP address for N2 Interface (Usually same with local IP)
+    gtpIp: 10.244.0.15   # gNB's local IP address for N3 Interface (Usually same with local IP)
 
     # List of AMF address information
     amfConfigs:
-      - address: 192.168.223.16
+      - address: 10.244.0.7
         port: 38412
 
     # List of supported S-NSSAIs by this gNB

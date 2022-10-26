@@ -5,7 +5,7 @@ metadata:
 data:
   ausfcfg.yaml: |
     info:
-      version: 1.0.0
+      version: 1.0.2
       description: AUSF initial local configuration
 
     configuration:
@@ -14,6 +14,9 @@ data:
         registerIPv4: free5gc-ausf-svc           # IP used to register to NRF
         bindingIPv4: free5gc-ausf-svc          # IP used to bind the service
         port: 8000                            # Port used to bind the service
+        tls: # the local path of TLS key
+          pem: config/TLS/ausf.pem # AUSF TLS Certificate
+          key: config/TLS/ausf.key # AUSF TLS Private key
       serviceNameList:                        # the SBI services provided by this AUSF, refer to TS 29.509
         - nausf-auth                          # Nausf_UEAuthentication service
       nrfUri: http://free5gc-nrf-svc:8000       # a valid URI of NRF
@@ -23,7 +26,7 @@ data:
         - mcc: 123
           mnc: 45
       groupId: ausfGroup001                   # ID for the group of the AUSF
-
+      eapAkaSupiImsiPrefix: false
     # the kind of log output
     # debugLevel: how detailed to output, value: trace, debug, info, warn, error, fatal, panic
     # ReportCaller: enable the caller report or not, value: true or false
