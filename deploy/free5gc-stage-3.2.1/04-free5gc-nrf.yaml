@@ -1,0 +1,100 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: free5gc-nrf-configmap
+data:
+  nrfcfg.yaml: |
+    info:
+      version: 1.0.0
+      description: NRF initial local configuration
+
+    configuration:
+      MongoDBName: free5gc                    # database name in MongoDB
+      MongoDBUrl: mongodb://mongodb-svc:27017 # a valid URL of the mongodb
+      sbi:                                    # Service-based interface information
+        scheme: http                          # the protocol for sbi (http or https)
+        registerIPv4: 192.168.2.165           # IP used to serve NFs or register to another NRF
+        bindingIPv4: 192.168.2.165            # IP used to bind the service
+        port: 8000                            # port used to bind the service
+      DefaultPlmnId:
+        mcc: 208                              # Mobile Country Code (3 digits string, digit: 0~9)
+        mnc: 93                               # Mobile Network Code (2 or 3 digits string, digit: 0~9)
+      serviceNameList:                        # the SBI services provided by this NRF, refer to TS 29.510
+        - nnrf-nfm                            # Nnrf_NFManagement service
+        - nnrf-disc                           # Nnrf_NFDiscovery service
+
+    # the kind of log output
+    # debugLevel: how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+    # ReportCaller: enable the caller report or not, value: true or false
+    logger:
+      NRF:
+        debugLevel: info
+        ReportCaller: false
+      PathUtil:
+        debugLevel: info
+        ReportCaller: false
+      OpenApi:
+        debugLevel: info
+        ReportCaller: false
+      MongoDBLibrary:
+        debugLevel: info
+        ReportCaller: false
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: free5gc-nrf-deployment
+spec:
+  selector:
+    matchLabels:
+      app: free5gc-nrf
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: free5gc-nrf
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/free5gc-control-plane:stage3.2.1-amd64
+        command: ["/bin/sh"]
+        args: ["-c", "./bin/nrf"]
+        env:
+        - name: GIN_MODE
+          value: debug # debug | release
+        volumeMounts:
+        - name: nrfcfg
+          mountPath: /free5gc/config/nrfcfg.yaml
+          subPath: nrfcfg.yaml
+      initContainers:
+      - name: init-network-client
+        image: sdnvortex/network-controller:v0.4.9
+        command: ["/go/bin/client"]
+        args: ["-s=unix:///tmp/vortex.sock", "-b=br1", "-n=eth1", "-i=192.168.2.165/23"]
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_UUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        volumeMounts:
+        - mountPath: /tmp/
+          name: grpc-sock
+      volumes:
+      - name: grpc-sock
+        hostPath:
+          path: /tmp/vortex/
+      - name: nrfcfg
+        configMap:
+          name: free5gc-nrf-configmap
+          items: 
+          - key: nrfcfg.yaml
+            path: nrfcfg.yaml
+      

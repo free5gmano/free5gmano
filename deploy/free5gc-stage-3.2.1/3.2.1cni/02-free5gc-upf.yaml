@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: free5gc-upf-configmap
+data:
+  upfcfg.yaml: |
+    
+    version: 1.0.3
+    description: UPF configuration
+      # The IP list of the N4 interface on this UPF (Can't set to 0.0.0.0)
+    pfcp:
+          #addr: free5gc-upf-svc
+      addr: free5gc-upf-svc
+      nodeID: free5gc-upf-svc # External IP or FQDN can be reached
+      retransTimeout: 1s # retransmission timeout
+      maxRetrans: 3 # the max number of retransmission
+      # The IP list of the N3/N9 interfaces on this UPF
+      # If there are multiple connection, set addr to 0.0.0.0 or list all the addresses
+    gtpu:
+      forwarder: gtp5g
+          
+      ifList:
+        - addr: free5gc-upf-svc
+          type: N3
+        # [optional] gtpu.name
+        # - name: upf.5gc.nctu.me
+        # [optional] gtpu.ifname
+        # - ifname: gtpif
+
+      # The DNN list supported by UPF
+    dnnList:
+      - dnn: internet                       # Data Network Name
+        cidr: 60.60.0.0/24                  # Classless Inter-Domain Routing for assigned IPv4 pool of UE
+          # [optional] dnn_list[*].natifname
+          # natifname: eth0
+    logger: # log output setting
+      enable: true # true or false
+      level: info # how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+      reportCaller: false # enable the caller report or not, value: true or false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: free5gc-upf-svc
+spec:
+  selector:
+    app: free5gc-upf
+  clusterIP: None # 10.96.100.10
+  ports:
+    - name: pfcp
+      protocol: UDP
+      port: 8805
+    - name: sbi
+      port: 29518
+      protocol: TCP
+    - name: gtp
+      protocol: UDP
+      port: 2152
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: free5gc-upf-deployment
+spec:
+  selector:
+    matchLabels:
+      app: free5gc-upf
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: free5gc-upf
+    spec:
+      # hostNetwork: true
+      containers:
+      - name: free5gc-upf-container
+        image: free5gmano/free5gc-user-plane:stage3.2.1-amd64
+        securityContext:
+          privileged: true
+        command: ["/bin/sh"]
+        args: ["-c", "sleep 3s && /setup-uptun.sh eth0 && ./bin/upf"]
+        volumeMounts:
+        - mountPath: /dev/net/tun
+          name: tun-volume
+        - name: upfcfg
+          mountPath: /free5gc/config/upfcfg.yaml
+          subPath: upfcfg.yaml
+      volumes:
+      - name: tun-volume
+        hostPath:
+          path: /dev/net/tun
+      - name: upfcfg
+        configMap:
+          name: free5gc-upf-configmap
+          items:
+          - key: upfcfg.yaml
+            path: upfcfg.yaml

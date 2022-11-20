@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-svc
+spec:
+  ports:
+  - port: 27017
+  selector:
+    app: free5gc-mongodb
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: free5gc-mongodb
+spec:
+  selector:
+    matchLabels:
+      app: free5gc-mongodb
+  template:
+    metadata:
+      labels:
+        app: free5gc-mongodb
+    spec:
+      containers:
+      - image: free5gmano/nextepc-mongodb
+        name: free5gc-mongodb
+        ports:
+        - containerPort: 27017
+          name: mongodb
+        volumeMounts:
+        - name: mongodb-persistent-storage
+          mountPath: /data/db
+      volumes:
+      - name: mongodb-persistent-storage
+        persistentVolumeClaim:
+          claimName: mongodb-pv-claim
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: mongodb-pv-volume
+  labels:
+    type: local
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/mongo/"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi

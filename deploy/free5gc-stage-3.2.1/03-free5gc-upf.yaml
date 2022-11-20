@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: free5gc-upf-configmap
+data:
+  upfcfg.yaml: |
+    info:
+      version: 1.0.0
+      description: UPF configuration
+
+    configuration:
+      # the kind of log output
+      # debugLevel: how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+      # ReportCaller: enable the caller report or not, value: true or false
+      debugLevel: info
+      ReportCaller: false
+
+      # The IP list of the N4 interface on this UPF (Can't set to 0.0.0.0)
+      pfcp:
+        - addr: 192.168.2.160
+
+      # The IP list of the N3/N9 interfaces on this UPF
+      # If there are multiple connection, set addr to 0.0.0.0 or list all the addresses
+      gtpu:
+        - addr: 192.168.2.160
+        # [optional] gtpu.name
+        # - name: upf.5gc.nctu.me
+        # [optional] gtpu.ifname
+        # - ifname: gtpif
+
+      # The DNN list supported by UPF
+      dnn_list:
+        - dnn: internet                       # Data Network Name
+          cidr: 60.60.0.0/24                  # Classless Inter-Domain Routing for assigned IPv4 pool of UE
+          # [optional] dnn_list[*].natifname
+          # natifname: eth0
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: free5gc-upf-deployment
+spec:
+  selector:
+    matchLabels:
+      app: free5gc-upf
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: free5gc-upf
+    spec:
+      containers:      
+      - name: free5gc-upf-container
+        image: free5gmano/free5gc-user-plane:stage3.0.6-amd64
+        securityContext:
+          privileged: true
+        command: ["/bin/sh"]
+        args: ["-c", "/setup-uptun.sh eth0 && ./bin/free5gc-upfd"]
+        volumeMounts:
+        - mountPath: /dev/net/tun
+          name: tun-volume
+        - name: upfcfg
+          mountPath: /free5gc/NFs/upf/build/config/upfcfg.yaml
+          subPath: upfcfg.yaml
+      initContainers:
+      - name: init-network-client
+        image: sdnvortex/network-controller:v0.4.9
+        command: ["/go/bin/client"]
+        args: ["-s=unix:///tmp/vortex.sock", "-b=br1", "-n=eth1", "-i=192.168.2.160/23"]
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_UUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        volumeMounts:
+        - mountPath: /tmp/
+          name: grpc-sock
+      volumes:
+      - name: grpc-sock
+        hostPath:
+          path: /tmp/vortex/
+      - name: tun-volume
+        hostPath:
+          path: /dev/net/tun
+      - name: upfcfg
+        configMap:
+          name: free5gc-upf-configmap
+          items: 
+          - key: upfcfg.yaml
+            path: upfcfg.yaml

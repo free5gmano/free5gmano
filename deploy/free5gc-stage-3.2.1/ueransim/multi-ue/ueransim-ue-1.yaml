@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ueransim-ue-1-deployment
+  labels:
+    app: ueransim-ue-1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ueransim-ue-1
+  template:
+    metadata:
+      labels:
+        app: ueransim-ue-1
+    spec:
+      containers:
+      - name: ueransim-ue
+        imagePullPolicy: IfNotPresent
+        image: free5gmano/ueransim:v3.1.4
+        securityContext:
+          privileged: true
+        command: ["/bin/bash", "-c"]
+        args: ["./build/nr-ue -c ./config/free5gc-ue.yaml"]
+        volumeMounts:
+        - mountPath: /dev/net/tun
+          name: tun-volume
+        - name: ue-conf
+          mountPath: /UERANSIM/config/free5gc-ue.yaml
+          subPath: free5gc-ue-1.yaml
+      initContainers:
+      - name: init-network-client
+        image: sdnvortex/network-controller:v0.4.9
+        command: ["/go/bin/client"]
+        args: ["-s=unix:///tmp/vortex.sock", "-b=br0", "-n=eth1", "-i=192.168.2.19/23", "-g=192.168.3.254"]
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_UUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        volumeMounts:
+        - mountPath: /tmp/
+          name: grpc-sock
+      volumes:
+      - name: grpc-sock
+        hostPath:
+          path: /tmp/vortex/
+      - name: tun-volume
+        hostPath:
+          path: /dev/net/tun
+      - name: ue-conf
+        configMap:
+          name: ueransim-multi-ue-configmap
+          items: 
+          - key: free5gc-ue-1.yaml
+            path: free5gc-ue-1.yaml
