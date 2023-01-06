@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: free5gc-udr-configmap
+data:
+  udrcfg.yaml: |
+    info:
+      version: 1.0.1
+      description: UDR initial local configuration
+
+    configuration:
+      sbi:                                    # Service-based interface information
+        scheme: http                          # the protocol for sbi (http or https)
+        registerIPv4: free5gc-udr-svc           # IP used to register to NRF
+        bindingIPv4: free5gc-udr-svc            # IP used to bind the service
+        port: 8000                            # port used to bind the service
+        tls: # the local path of TLS key
+          pem: config/TLS/udr.pem # UDR TLS Certificate
+          key: config/TLS/udr.key # UDR TLS Private key
+      mongodb:
+        name: free5gc                         # Database name in MongoDB
+        url: mongodb://mongodb-svc:27017      # URL of MongoDB
+      nrfUri: http://free5gc-nrf-svc:8000       # a valid URI of NRF
+
+    # the kind of log output
+    # debugLevel: how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+    # ReportCaller: enable the caller report or not, value: true or false
+    logger:
+      UDR:
+        debugLevel: info
+        ReportCaller: false
+      MongoDBLibrary:
+        debugLevel: info
+        ReportCaller: false
+      PathUtil:
+        debugLevel: info
+        ReportCaller: false
+      OpenApi:
+        debugLevel: info
+        ReportCaller: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: free5gc-udr-svc
+spec:
+  selector:
+    app: free5gc-udr
+  clusterIP: None # 10.96.100.8
+  ports:
+    - name: sbi
+      protocol: TCP
+      port: 29504
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: free5gc-udr-deployment
+spec:
+  selector:
+    matchLabels:
+      app: free5gc-udr
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: free5gc-udr
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/free5gc-control-plane:stage3.2.1-amd64
+        command: ["/bin/sh"]
+        args: ["-c", "sleep 5s && ./bin/udr"]
+        env:
+        - name: GIN_MODE
+          value: debug # debug | release
+        volumeMounts:
+        - name: udrcfg
+          mountPath: /free5gc/config/udrcfg.yaml
+          subPath: udrcfg.yaml
+      volumes:
+      - name: udrcfg
+        configMap:
+          name: free5gc-udr-configmap
+          items: 
+          - key: udrcfg.yaml
+            path: udrcfg.yaml
+      
