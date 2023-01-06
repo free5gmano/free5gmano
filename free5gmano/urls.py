@@ -62,6 +62,4 @@ urlpatterns = [
     path('', include('nssmf.urls')),
     path('', include('moi.urls')),
     path('', include('FaultManagement.urls')),
-    path('SecurityManagement/', include("SecurityManagement.urls")),
-    path('admin/', admin.site.urls),
 ]

@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from nssmf.models import SliceTemplate, GenericTemplate, ServiceMappingPluginModel, Content
-from SecurityManagement.models import ManoUser as User
 from nssmf.enums import OperationStatus, PluginOperationStatus
 from free5gmano import settings
 import zipfile
@@ -20,7 +19,7 @@ class GenericTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = GenericTemplate
         fields = ['templateId', 'name', 'nfvoType', 'templateType', 'templateFile', 'content',
-                  'operationStatus', 'operationTime', 'description', 'share', 'user_id', 'user_name']
+                  'operationStatus', 'operationTime', 'description']
         read_only_fields = ['templateFile']
 
     def create(self, validated_data):
@@ -87,9 +86,8 @@ class ServiceMappingPluginSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         if 'context' in kwargs.keys():
             view = kwargs['context']['view']
-            self.request = kwargs['context']['request']
             if view.action == 'list':
-                self.Meta.fields = ['name', 'allocate_nssi', 'deallocate_nssi', 'pluginFile', 'nm_host', 'nfvo_host', 'subscription_host', 'share', 'user_id', 'user_name']
+                self.Meta.fields = ['name', 'allocate_nssi', 'deallocate_nssi', 'pluginFile', 'nm_host', 'nfvo_host', 'subscription_host']
             elif view.action == 'retrieve':
                 self.Meta.fields = ['name', 'allocate_nssi', 'deallocate_nssi', 'pluginFile', 'nm_host', 'nfvo_host', 'subscription_host']
             elif view.action == 'create':
@@ -105,13 +103,6 @@ class ServiceMappingPluginSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        print("in_ser_create")
-        print(validated_data)
-        print(self.request)
-        user_id = self.request.session['uu_id']
-        user_obj = User.objects.filter(id=user_id).first()
-        user_name = user_obj.username
-
         response_data = dict()
         zipfile_check = ['deallocate/main.py', 'config.yaml', 'allocate/main.py']
         # Extract Zip file
@@ -134,9 +125,7 @@ class ServiceMappingPluginSerializer(serializers.ModelSerializer):
                     'nm_host': config['nm_ip'],
                     'nfvo_host': config['nfvo_ip'],
                     'subscription_host': config['kafka_ip'],
-                    'pluginFile': validated_data['pluginFile'],
-                    'user_name': user_name,
-                    'user_id': user_id,
+                    'pluginFile': validated_data['pluginFile']
                 }
                 self.Meta.fields = '__all__'
             return super().create(validated_data)
