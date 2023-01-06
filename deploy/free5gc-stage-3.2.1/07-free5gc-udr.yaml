@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: free5gc-udr-configmap
+data:
+  udrcfg.yaml: |
+    info:
+      version: 1.0.0
+      description: UDR initial local configuration
+
+    configuration:
+      sbi:                                    # Service-based interface information
+        scheme: http                          # the protocol for sbi (http or https)
+        registerIPv4: 192.168.2.168           # IP used to register to NRF
+        bindingIPv4: 192.168.2.168            # IP used to bind the service
+        port: 8000                            # port used to bind the service
+      mongodb:
+        name: free5gc                         # Database name in MongoDB
+        url: mongodb://mongodb-svc:27017      # URL of MongoDB
+      nrfUri: http://192.168.2.165:8000       # a valid URI of NRF
+
+    # the kind of log output
+    # debugLevel: how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+    # ReportCaller: enable the caller report or not, value: true or false
+    logger:
+      UDR:
+        debugLevel: info
+        ReportCaller: false
+      MongoDBLibrary:
+        debugLevel: info
+        ReportCaller: false
+      PathUtil:
+        debugLevel: info
+        ReportCaller: false
+      OpenApi:
+        debugLevel: info
+        ReportCaller: false
+---
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: free5gc-udr-deployment
+spec:
+  selector:
+    matchLabels:
+      app: free5gc-udr
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: free5gc-udr
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/free5gc-control-plane:stage3.0.6-amd64
+        command: ["/bin/sh"]
+        args: ["-c", "./bin/udr"]
+        env:
+        - name: GIN_MODE
+          value: debug # debug | release
+        volumeMounts:
+        - name: udrcfg
+          mountPath: /free5gc/config/udrcfg.yaml
+          subPath: udrcfg.yaml
+      initContainers:
+      - name: init-network-client
+        image: sdnvortex/network-controller:v0.4.9
+        command: ["/go/bin/client"]
+        args: ["-s=unix:///tmp/vortex.sock", "-b=br1", "-n=eth1", "-i=192.168.2.168/23"]
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_UUID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        volumeMounts:
+        - mountPath: /tmp/
+          name: grpc-sock
+      volumes:
+      - name: grpc-sock
+        hostPath:
+          path: /tmp/vortex/
+      - name: udrcfg
+        configMap:
+          name: free5gc-udr-configmap
+          items: 
+          - key: udrcfg.yaml
+            path: udrcfg.yaml
+      
