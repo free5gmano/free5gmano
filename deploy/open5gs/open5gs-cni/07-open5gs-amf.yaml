@@ -1,0 +1,47 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: open5gs-amf-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-amf
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-amf
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/open5gs:v2.1.7
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "sleep 10s && ./bin/open5gs-amfd"]
+        volumeMounts:
+        - name: open5gs-amfcfg
+          mountPath: /open5gs/install/etc/open5gs/amf.yaml
+          subPath: amf.yaml
+      volumes:
+      - name: open5gs-amfcfg
+        configMap:
+          name: open5gs-configmap
+          items: 
+          - key: amf.yaml
+            path: amf.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-amf-svc
+spec:
+  selector:
+    app: open5gs-amf
+  clusterIP: None # 10.96.100.2
+  ports:
+    - name: sbi
+      protocol: TCP
+      port: 7777
+    - name: ngap
+      protocol: SCTP
+      port: 38412
