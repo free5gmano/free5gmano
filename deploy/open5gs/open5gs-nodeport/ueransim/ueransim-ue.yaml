@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ueransim-ue-deployment
+  labels:
+    app: ueransim-ue
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ueransim-ue
+  template:
+    metadata:
+      labels:
+        app: ueransim-ue
+    spec:
+      containers:
+      - name: ueransim-ue
+        imagePullPolicy: IfNotPresent
+        image: free5gmano/ueransim:v3.1.4
+        securityContext:
+          privileged: true
+        command: ["/bin/bash", "-c"]
+        args: ["apt update && apt install iputils-ping -y && ./build/nr-ue -c ./config/open5gs-ue.yaml"]
+        volumeMounts:
+        - mountPath: /dev/net/tun
+          name: tun-volume
+        - name: ue-conf
+          mountPath: /UERANSIM/config/open5gs-ue.yaml
+          subPath: open5gs-ue.yaml
+      volumes:
+      - name: tun-volume
+        hostPath:
+          path: /dev/net/tun
+      - name: ue-conf
+        configMap:
+          name: ueransim-configmap
+          items: 
+          - key: open5gs-ue.yaml
+            path: open5gs-ue.yaml

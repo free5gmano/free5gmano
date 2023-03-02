@@ -1,0 +1,72 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: open5gs-upf-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-upf
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-upf
+    spec:
+      containers:      
+      - name: open5gs-upf-container
+        image: free5gmano/open5gs:v2.1.7
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        command: ["/bin/sh"]
+        args: ["-c", "/open5gs/install/setup-uptun.sh && sleep 10s && /open5gs/install/bin/open5gs-upfd"]
+        volumeMounts:
+          - mountPath: /dev/net/tun
+            name: tun-volume
+          - name: open5gs-upfcfg
+            mountPath: /open5gs/install/etc/open5gs/upf.yaml
+            subPath: upf.yaml
+      volumes:
+      - name: tun-volume
+        hostPath:
+          path: /dev/net/tun
+      - name: open5gs-upfcfg
+        configMap:
+          name: open5gs-configmap
+          items:
+          - key: upf.yaml
+            path: upf.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-upf-svc
+spec:
+  selector:
+    app: open5gs-upf
+  clusterIP: None # 10.96.100.2
+  ports:
+    - name: gtpu
+      protocol: UDP
+      port: 2152
+    - name: pfcp
+      protocol: UDP
+      port: 8805
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-upf-nodeport
+spec:
+  type: NodePort
+  selector:
+    app: open5gs-upf
+  ports:
+  - name: pfcp
+    protocol: UDP
+    port: 8805
+    nodePort: 8805
+  - name: gtp
+    protocol: UDP
+    port: 2152
+    nodePort: 2152

@@ -1,0 +1,47 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: open5gs-sgwu-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-sgwu
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-sgwu
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/open5gs:v2.1.7
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "sleep 10s && ./bin/open5gs-sgwud"]
+        volumeMounts:
+        - name: open5gs-sgwucfg
+          mountPath: /open5gs/install/etc/open5gs/sgwu.yaml
+          subPath: sgwu.yaml
+      volumes:
+      - name: open5gs-sgwucfg
+        configMap:
+          name: open5gs-configmap
+          items: 
+          - key: sgwu.yaml
+            path: sgwu.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-sgwu-svc
+spec:
+  selector:
+    app: open5gs-sgwu
+  clusterIP: None # 10.96.100.2
+  ports:
+    - name: gtpu
+      protocol: UDP
+      port: 2152
+    - name: pfcp
+      protocol: UDP
+      port: 8805

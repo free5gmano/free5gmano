@@ -1,0 +1,44 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: open5gs-udr-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-udr
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-udr
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/open5gs:v2.1.7
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "sleep 10s && ./bin/open5gs-udrd"]
+        volumeMounts:
+        - name: open5gs-udrcfg
+          mountPath: /open5gs/install/etc/open5gs/udr.yaml
+          subPath: udr.yaml
+      volumes:
+      - name: open5gs-udrcfg
+        configMap:
+          name: open5gs-configmap
+          items: 
+          - key: udr.yaml
+            path: udr.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-udr-svc
+spec:
+  selector:
+    app: open5gs-udr
+  clusterIP: None # 10.96.100.2
+  ports:
+    - name: sbi
+      protocol: TCP
+      port: 7777

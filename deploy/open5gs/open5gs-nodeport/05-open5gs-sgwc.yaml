@@ -1,0 +1,47 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: open5gs-sgwc-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-sgwc
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-sgwc
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/open5gs:v2.1.7
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "sleep 10s && ./bin/open5gs-sgwcd"]
+        volumeMounts:
+        - name: open5gs-sgwccfg
+          mountPath: /open5gs/install/etc/open5gs/sgwc.yaml
+          subPath: sgwc.yaml
+      volumes:
+      - name: open5gs-sgwccfg
+        configMap:
+          name: open5gs-configmap
+          items: 
+          - key: sgwc.yaml
+            path: sgwc.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-sgwc-svc
+spec:
+  selector:
+    app: open5gs-sgwc
+  clusterIP: None # 10.96.100.2
+  ports:
+    - name: pfcp
+      protocol: UDP
+      port: 8805
+    - name: gtpc
+      protocol: UDP
+      port: 2123

@@ -1,0 +1,47 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: open5gs-mme-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-mme
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-mme
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/open5gs:v2.1.7
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "sleep 10s && ./bin/open5gs-mmed"]
+        volumeMounts:
+        - name: open5gs-mmecfg
+          mountPath: /open5gs/install/etc/open5gs/mme.yaml
+          subPath: mme.yaml
+      volumes:
+      - name: open5gs-mmecfg
+        configMap:
+          name: open5gs-configmap
+          items: 
+          - key: mme.yaml
+            path: mme.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-mme-svc
+spec:
+  selector:
+    app: open5gs-mme
+  clusterIP: None # 10.96.100.2
+  ports:
+    - name: s1ap
+      protocol: SCTP
+      port: 36412
+    - name: gtpc
+      protocol: UDP
+      port: 2123

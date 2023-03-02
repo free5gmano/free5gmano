@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ueransim-gnb-deployment
+  labels:
+    app: ueransim-gnb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ueransim-gnb
+  template:
+    metadata:
+      labels:
+        app: ueransim-gnb
+    spec:
+      containers:
+      - name: ueransim-gnb
+        imagePullPolicy: IfNotPresent
+        image: free5gmano/ueransim:v3.1.4
+        securityContext:
+          privileged: true
+        command: ["/bin/bash", "-c"]
+        args: ["./build/nr-gnb -c ./config/open5gs-gnb.yaml"]
+        volumeMounts:
+        - name: gnb-conf
+          mountPath: /UERANSIM/config/open5gs-gnb.yaml
+          subPath: open5gs-gnb.yaml
+      volumes:
+      - name: gnb-conf
+        configMap:
+          name: ueransim-configmap
+          items: 
+          - key: open5gs-gnb.yaml
+            path: open5gs-gnb.yaml

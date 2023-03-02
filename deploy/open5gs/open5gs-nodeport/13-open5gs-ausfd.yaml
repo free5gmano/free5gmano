@@ -1,0 +1,44 @@
+apiVersion: apps/v1 
+kind: Deployment
+metadata:
+  name: open5gs-ausf-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-ausf
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-ausf
+    spec:
+      containers:      
+      - name: myapp-container
+        image: free5gmano/open5gs:v2.1.7
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "sleep 10s && ./bin/open5gs-ausfd"]
+        volumeMounts:
+        - name: open5gs-ausfcfg
+          mountPath: /open5gs/install/etc/open5gs/ausf.yaml
+          subPath: ausf.yaml
+      volumes:
+      - name: open5gs-ausfcfg
+        configMap:
+          name: open5gs-configmap
+          items: 
+          - key: ausf.yaml
+            path: ausf.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-ausf-svc
+spec:
+  selector:
+    app: open5gs-ausf
+  clusterIP: None # 10.96.100.2
+  ports:
+    - name: sbi
+      protocol: TCP
+      port: 7777
