@@ -21,7 +21,7 @@ data:
           pem: config/TLS/amf.pem # AMF TLS Certificate
           key: config/TLS/amf.key # AMF TLS Private key
       serviceNameList: # the SBI services provided by this AMF, refer to TS 29.518
-        - namf-comm # Namf_Communication service
+	        - namf-comm # Namf_Communication service
         - namf-evts # Namf_EventExposure service
         - namf-mt   # Namf_MT service
         - namf-loc  # Namf_Location service

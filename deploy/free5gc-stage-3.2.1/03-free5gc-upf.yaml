@@ -4,36 +4,39 @@ metadata:
   name: free5gc-upf-configmap
 data:
   upfcfg.yaml: |
-    info:
-      version: 1.0.0
-      description: UPF configuration
 
-    configuration:
-      # the kind of log output
-      # debugLevel: how detailed to output, value: trace, debug, info, warn, error, fatal, panic
-      # ReportCaller: enable the caller report or not, value: true or false
-      debugLevel: info
-      ReportCaller: false
-
+    version: 1.0.3
+    description: UPF configuration
       # The IP list of the N4 interface on this UPF (Can't set to 0.0.0.0)
-      pfcp:
-        - addr: 192.168.2.160
-
+    pfcp:
+          #addr: free5gc-upf-svc
+      addr: 192.168.2.160
+      nodeID: 192.168.2.160 # External IP or FQDN can be reached
+      retransTimeout: 1s # retransmission timeout
+      maxRetrans: 3 # the max number of retransmission
       # The IP list of the N3/N9 interfaces on this UPF
       # If there are multiple connection, set addr to 0.0.0.0 or list all the addresses
-      gtpu:
+    gtpu:
+      forwarder: gtp5g
+          
+      ifList:
         - addr: 192.168.2.160
+          type: N3
         # [optional] gtpu.name
         # - name: upf.5gc.nctu.me
         # [optional] gtpu.ifname
         # - ifname: gtpif
 
       # The DNN list supported by UPF
-      dnn_list:
-        - dnn: internet                       # Data Network Name
-          cidr: 60.60.0.0/24                  # Classless Inter-Domain Routing for assigned IPv4 pool of UE
+    dnnList:
+      - dnn: internet                       # Data Network Name
+        cidr: 60.60.0.0/24                  # Classless Inter-Domain Routing for assigned IPv4 pool of UE
           # [optional] dnn_list[*].natifname
           # natifname: eth0
+    logger: # log output setting
+      enable: true # true or false
+      level: info # how detailed to output, value: trace, debug, info, warn, error, fatal, panic
+      reportCaller: false # enable the caller report or not, value: true or false
 ---
 apiVersion: apps/v1 
 kind: Deployment
@@ -51,7 +54,7 @@ spec:
     spec:
       containers:      
       - name: free5gc-upf-container
-        image: free5gmano/free5gc-user-plane:stage3.0.6-amd64
+        image: free5gmano/free5gc-user-plane:stage3.2.1-amd64
         securityContext:
           privileged: true
         command: ["/bin/sh"]

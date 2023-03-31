@@ -5,19 +5,22 @@ metadata:
 data:
   udrcfg.yaml: |
     info:
-      version: 1.0.0
+      version: 1.0.1
       description: UDR initial local configuration
 
     configuration:
       sbi:                                    # Service-based interface information
         scheme: http                          # the protocol for sbi (http or https)
-        registerIPv4: 192.168.2.168           # IP used to register to NRF
-        bindingIPv4: 192.168.2.168            # IP used to bind the service
+        registerIPv4: 192.168.2.168            # IP used to register to NRF
+        bindingIPv4: 192.168.2.168             # IP used to bind the service
         port: 8000                            # port used to bind the service
+        tls: # the local path of TLS key
+          pem: config/TLS/udr.pem # UDR TLS Certificate
+          key: config/TLS/udr.key # UDR TLS Private key
       mongodb:
         name: free5gc                         # Database name in MongoDB
         url: mongodb://mongodb-svc:27017      # URL of MongoDB
-      nrfUri: http://192.168.2.165:8000       # a valid URI of NRF
+      nrfUri: http://192.168.2.165:8000      # a valid URI of NRF
 
     # the kind of log output
     # debugLevel: how detailed to output, value: trace, debug, info, warn, error, fatal, panic
@@ -52,7 +55,7 @@ spec:
     spec:
       containers:      
       - name: myapp-container
-        image: free5gmano/free5gc-control-plane:stage3.0.6-amd64
+        image: free5gmano/free5gc-control-plane:stage3.2.1-amd64
         command: ["/bin/sh"]
         args: ["-c", "./bin/udr"]
         env:

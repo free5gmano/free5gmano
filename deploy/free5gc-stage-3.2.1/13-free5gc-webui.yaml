@@ -52,7 +52,7 @@ spec:
       - name: free5gc-webui
         command: ["/bin/bash", "-c"]
         args: ["./webconsole/bin/webconsole"]
-        image: free5gmano/free5gc-webui:stage3.0.6-amd64
+        image: free5gmano/free5gc-webui:stage3.2.1-amd64
         env:
         - name: GIN_MODE
           value: debug # debug | release
