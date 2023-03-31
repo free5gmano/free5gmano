@@ -5,7 +5,7 @@ metadata:
 data:
   udmcfg.yaml: |
     info:
-      version: 1.0.1
+      version: 1.0.2
       description: UDM initial local configuration
 
     configuration:
@@ -21,9 +21,9 @@ data:
         bindingIPv4: 192.168.2.167  # IP used to bind the service
         port: 8000 # Port used to bind the service
         tls: # the local path of TLS key
-          log: free5gc/udmsslkey.log # UDM keylog
-          pem: free5gc/support/TLS/udm.pem # UDM TLS Certificate
-          key: free5gc/support/TLS/udm.key # UDM TLS Private key
+          log: config/TLS/udmsslkey.log # UDM keylog
+          pem: config/TLS/udm.pem # UDM TLS Certificate
+          key: config/TLS/udm.key # UDM TLS Private key
       nrfUri: http://192.168.2.165:8000 # a valid URI of NRF
 
       # test data set from TS33501-f60 Annex C.4
@@ -48,7 +48,6 @@ data:
       PathUtil:
         debugLevel: info
         ReportCaller: false
-
 ---
 apiVersion: apps/v1 
 kind: Deployment
@@ -66,7 +65,7 @@ spec:
     spec:
       containers:      
       - name: myapp-container
-        image: free5gmano/free5gc-control-plane:stage3.0.6-amd64
+        image: free5gmano/free5gc-control-plane:stage3.2.1-amd64
         command: ["/bin/sh"]
         args: ["-c", "./bin/udm"]
         volumeMounts:

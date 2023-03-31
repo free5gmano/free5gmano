@@ -5,16 +5,19 @@ metadata:
 data:
   nssfcfg.yaml: |
     info:
-      version: 1.0.0
+      version: 1.0.1
       description: NSSF initial local configuration
 
     configuration:
       nssfName: NSSF                          # the name of this NSSF
       sbi:                                    # Service-based interface information
         scheme: http                          # the protocol for sbi (http or https)
-        registerIPv4: 192.168.2.166           # IP used to register to NRF
+        registerIPv4: 192.168.2.166         # IP used to register to NRF
         bindingIPv4: 192.168.2.166            # IP used to bind the service
         port: 8000                            # Port used to bind the service
+        tls: # the local path of TLS key
+          pem: config/TLS/nssf.pem # NSSF TLS Certificate
+          key: config/TLS/nssf.key # NSSF TLS Private key
       serviceNameList:                        # the SBI services provided by this SMF, refer to TS 29.531
         - nnssf-nsselection                   # Nnssf_NSSelection service
         - nnssf-nssaiavailability             # Nnssf_NSSAIAvailability service
@@ -80,7 +83,7 @@ data:
             sst: 1
             sd: 010203
           nsiInformationList:
-            - nrfId: http://192.168.2.165:8000/nnrf-nfm/v1/nf-instances
+            - nrfId: http://127.0.0.10:8000/nnrf-nfm/v1/nf-instances
               nsiId: 22
         - snssai:
             sst: 1
@@ -369,7 +372,7 @@ spec:
     spec:
       containers:      
       - name: myapp-container
-        image: free5gmano/free5gc-control-plane:stage3.0.6-amd64
+        image: free5gmano/free5gc-control-plane:stage3.2.1-amd64
         command: ["/bin/sh"]
         args: ["-c", "./bin/nssf"]
         env:

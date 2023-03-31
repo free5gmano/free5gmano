@@ -5,25 +5,28 @@ metadata:
 data:
   ausfcfg.yaml: |
     info:
-      version: 1.0.0
+      version: 1.0.2
       description: AUSF initial local configuration
 
     configuration:
       sbi:                                    # Service-based interface information
         scheme: http                          # the protocol for sbi (http or https)
         registerIPv4: 192.168.2.164           # IP used to register to NRF
-        bindingIPv4: 192.168.2.164            # IP used to bind the service
+        bindingIPv4: 192.168.2.164           # IP used to bind the service
         port: 8000                            # Port used to bind the service
+        tls: # the local path of TLS key
+          pem: config/TLS/ausf.pem # AUSF TLS Certificate
+          key: config/TLS/ausf.key # AUSF TLS Private key
       serviceNameList:                        # the SBI services provided by this AUSF, refer to TS 29.509
         - nausf-auth                          # Nausf_UEAuthentication service
-      nrfUri: http://192.168.2.165:8000       # a valid URI of NRF
+      nrfUri: http://192.168.2.165:8000        # a valid URI of NRF
       plmnSupportList:                        # the PLMNs (Public Land Mobile Network) list supported by this AUSF
         - mcc: 208                            # Mobile Country Code (3 digits string, digit: 0~9)
           mnc: 93                             # Mobile Network Code (2 or 3 digits string, digit: 0~9)
         - mcc: 123
           mnc: 45
       groupId: ausfGroup001                   # ID for the group of the AUSF
-
+      eapAkaSupiImsiPrefix: false
     # the kind of log output
     # debugLevel: how detailed to output, value: trace, debug, info, warn, error, fatal, panic
     # ReportCaller: enable the caller report or not, value: true or false
@@ -54,7 +57,7 @@ spec:
     spec:
       containers:      
       - name: myapp-container
-        image: free5gmano/free5gc-control-plane:stage3.0.6-amd64
+        image: free5gmano/free5gc-control-plane:stage3.2.1-amd64
         command: ["/bin/sh"]
         args: ["-c", "./bin/ausf"]
         env:

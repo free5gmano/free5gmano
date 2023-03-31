@@ -5,7 +5,7 @@ metadata:
 data:
   nrfcfg.yaml: |
     info:
-      version: 1.0.0
+      version: 1.0.1
       description: NRF initial local configuration
 
     configuration:
@@ -16,6 +16,9 @@ data:
         registerIPv4: 192.168.2.165           # IP used to serve NFs or register to another NRF
         bindingIPv4: 192.168.2.165            # IP used to bind the service
         port: 8000                            # port used to bind the service
+        tls: # the local path of TLS key
+          pem: config/TLS/nrf.pem # NRF TLS Certificate
+          key: config/TLS/nrf.key # NRF TLS Private key
       DefaultPlmnId:
         mcc: 208                              # Mobile Country Code (3 digits string, digit: 0~9)
         mnc: 93                               # Mobile Network Code (2 or 3 digits string, digit: 0~9)
@@ -56,7 +59,7 @@ spec:
     spec:
       containers:      
       - name: myapp-container
-        image: free5gmano/free5gc-control-plane:stage3.0.6-amd64
+        image: free5gmano/free5gc-control-plane:stage3.2.1-amd64
         command: ["/bin/sh"]
         args: ["-c", "./bin/nrf"]
         env:
