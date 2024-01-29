@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ueransim-gnb-configmap
+data:
+  free5gc-gnb.yaml: |
+    mcc: '208'          # Mobile Country Code value
+    mnc: '93'           # Mobile Network Code value (2 or 3 digits)
+
+    nci: '0x000000010'  # NR Cell Identity (36-bit)
+    idLength: 32        # NR gNB ID length in bits [22...32]
+    tac: 1              # Tracking Area Code
+
+    linkIp: 10.244.0.15   # gNB's local IP address for Radio Link Simulation (Usually same with local IP)
+    ngapIp: 10.244.0.15   # gNB's local IP address for N2 Interface (Usually same with local IP)
+    gtpIp: 10.244.0.15   # gNB's local IP address for N3 Interface (Usually same with local IP)
+
+    # List of AMF address information
+    amfConfigs:
+      - address: 10.244.0.7
+        port: 38412
+
+    # List of supported S-NSSAIs by this gNB
+    slices:
+      - sst: 0x1
+        sd: 0x010203
+
+    # Indicates whether or not SCTP stream number errors should be ignored.
+    ignoreStreamIds: true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ueransim-gnb-deployment
+  labels:
+    app: ueransim-gnb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ueransim-gnb
+  template:
+    metadata:
+      labels:
+        app: ueransim-gnb
+    spec:
+      containers:
+      - name: ueransim-gnb
+        image: free5gmano/ueransim:v3.2.5
+        securityContext:
+          privileged: true
+        command: ["/bin/bash", "-c"]
+        args: ["./build/nr-gnb -c ./config/free5gc-gnb.yaml"]
+        volumeMounts:
+        - name: gnb-conf
+          mountPath: /UERANSIM/config/free5gc-gnb.yaml
+          subPath: free5gc-gnb.yaml
+      volumes:
+      - name: gnb-conf
+        configMap:
+          name: ueransim-gnb-configmap
+          items: 
+          - key: free5gc-gnb.yaml
+            path: free5gc-gnb.yaml
