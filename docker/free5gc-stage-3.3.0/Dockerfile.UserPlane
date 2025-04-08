@@ -1,0 +1,26 @@
+FROM golang:1.18.10 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get -y install wget git && \
+    apt-get clean && \
+    git clone --recursive -b v3.3.0 -j `nproc` https://github.com/free5gc/free5gc.git /free5gc && \
+    cd /free5gc && \
+    make upf
+
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get -y install iptables libmnl-dev libyaml-dev dnsutils && \
+    apt-get clean
+
+COPY --from=builder /free5gc /free5gc
+
+WORKDIR /free5gc
+
+COPY setup-uptun.sh /
+
+RUN chmod +x /setup-uptun.sh
