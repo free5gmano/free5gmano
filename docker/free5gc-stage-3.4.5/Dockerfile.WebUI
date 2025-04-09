@@ -1,0 +1,32 @@
+FROM ubuntu:20.04 AS builder
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y wget curl git tar make && \
+    wget https://go.dev/dl/go1.21.8.linux-amd64.tar.gz && \
+    tar -zxvf go1.21.8.linux-amd64.tar.gz && \
+    rm go1.21.8.linux-amd64.tar.gz && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get update && \
+    apt-get install -y nodejs && \
+    corepack enable && \
+    apt-get clean
+
+ENV GOPATH=/go
+ENV PATH=$PATH:$GOPATH/bin:$GOROOT/bin
+
+RUN git clone --recursive -b v3.4.5 -j `nproc` https://github.com/free5gc/free5gc.git /free5gc && \
+    cd /free5gc/webconsole/frontend && \
+    yarn install && \
+    yarn build && \
+    rm -rf ../public && \
+    cp -R build ../public && \
+    cd .. && \
+    go build -o bin/webconsole server.go
+
+FROM golang:1.21.8
+
+COPY --from=builder /free5gc /free5gc
+
+WORKDIR /free5gc/webconsole
