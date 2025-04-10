@@ -1,19 +1,25 @@
-FROM ubuntu:20.04
+FROM node:20.18.2
 
-RUN apt-get update && apt-get install curl wget -y
+ARG OPEN5GS_VERSION=2.7.2
 
-WORKDIR /
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+COPY open5gs_webui-entrypoint.sh /
 
-RUN apt install nodejs -y
-
-RUN wget https://github.com/open5gs/open5gs/archive/v2.1.7.tar.gz
-RUN tar -zxvf v2.1.7.tar.gz 
-RUN mv open5gs-2.1.7 open5gs
+RUN chmod +x /open5gs_webui-entrypoint.sh && \
+    apt-get update && \
+    apt-get install -y ca-certificates curl gnupg wget && \
+    wget https://downloads.mongodb.com/compass/mongosh-2.3.9-linux-x64.tgz && \
+    tar -zxf mongosh-2.3.9-linux-x64.tgz && \
+    rm mongosh-2.3.9-linux-x64.tgz && \
+    chmod +x mongosh-2.3.9-linux-x64/bin/mongosh && \
+    cp mongosh-2.3.9-linux-x64/bin/mongosh /usr/local/bin/ && \
+    rm -r mongosh-2.3.9-linux-x64 && \
+    wget https://github.com/open5gs/open5gs/archive/v${OPEN5GS_VERSION}.tar.gz && \
+    tar -zxf v${OPEN5GS_VERSION}.tar.gz && \
+    mv open5gs-${OPEN5GS_VERSION} open5gs && \
+    cd /open5gs/webui && \
+    npm install && \
+    npm run build
 
 WORKDIR /open5gs/webui
-RUN npm install && npm run build
-
-CMD npm run start
 
 EXPOSE 3000

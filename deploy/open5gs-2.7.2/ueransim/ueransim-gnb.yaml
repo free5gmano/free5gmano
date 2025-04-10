@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ueransim-gnb-configmap
+data:
+  open5gs-gnb.yaml: |
+    mcc: '999'          # Mobile Country Code value
+    mnc: '70'           # Mobile Network Code value (2 or 3 digits)
+
+    nci: '0x000000010'  # NR Cell Identity (36-bit)
+    idLength: 32        # NR gNB ID length in bits [22...32]
+    tac: 1              # Tracking Area Code
+
+    linkIp: ueransim-gnb-svc   # gNB's local IP address for Radio Link Simulation (Usually same with local IP)
+    ngapIp: ueransim-gnb-svc   # gNB's local IP address for N2 Interface (Usually same with local IP)
+    gtpIp: ueransim-gnb-svc    # gNB's local IP address for N3 Interface (Usually same with local IP)
+
+    # List of AMF address information
+    amfConfigs:
+      - address: open5gs-amf-svc  # 127.0.0.5
+        port: 38412
+
+    # List of supported S-NSSAIs by this gNB
+    slices:
+      - sst: 1
+
+    # Indicates whether or not SCTP stream number errors should be ignored.
+    ignoreStreamIds: true
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ueransim-gnb-svc
+spec:
+  selector:
+    app: ueransim-gnb
+  clusterIP: None
+  # ports:
+  # - name: sbi
+  #   protocol: TCP
+  #   port: 7777
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ueransim-gnb-deployment
+  labels:
+    app: ueransim-gnb
+spec:
+  selector:
+    matchLabels:
+      app: ueransim-gnb
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ueransim-gnb
+    spec:
+      containers:
+        - name: ueransim-gnb
+          image: free5gmano/ueransim:v3.2.7
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          command: ["/bin/sh"]
+          args: ["-c", "sleep 5 && ./build/nr-gnb -c ./config/open5gs-gnb.yaml"]
+          volumeMounts:
+            - name: ueransim-gnb-conf
+              mountPath: /UERANSIM/config/open5gs-gnb.yaml
+              subPath: open5gs-gnb.yaml
+      volumes:
+        - name: ueransim-gnb-conf
+          configMap:
+            name: ueransim-gnb-configmap
+            items:
+              - key: open5gs-gnb.yaml
+                path: open5gs-gnb.yaml

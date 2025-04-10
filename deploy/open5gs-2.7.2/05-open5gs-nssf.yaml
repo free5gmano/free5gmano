@@ -1,0 +1,194 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open5gs-nssf-configmap
+data:
+  nssf.yaml: |
+    logger:
+      file:
+        path: /open5gs/install/var/log/open5gs/nssf.log
+    #  level: info   # fatal|error|warn|info(default)|debug|trace
+
+    global:
+      max:
+        ue: 1024  # The number of UE can be increased depending on memory size.
+    #    peer: 64
+
+    nssf:
+      sbi:
+        server:
+          - address: open5gs-nssf-svc  # 127.0.0.14
+            port: 80  # 7777
+        client:
+          nrf:
+            - uri: http://open5gs-nrf-svc  # http://127.0.0.10:7777
+          # scp:
+          #   - uri: http://127.0.0.200:7777
+          nsi:
+            - uri: http://open5gs-nrf-svc  # http://127.0.0.10:7777
+              s_nssai:
+                sst: 1
+    ################################################################################
+    # SBI Server
+    ################################################################################
+    #  o Override SBI address to be advertised to NRF
+    #  sbi:
+    #    server:
+    #      - dev: eth0
+    #        advertise: open5gs-nssf.svc.local
+    #
+    #  sbi:
+    #    server:
+    #      - address: localhost
+    #        advertise:
+    #          - 127.0.0.99
+    #          - ::1
+    #
+    ################################################################################
+    # SBI Client
+    ################################################################################
+    #  o Network Slice Instance(NSI)
+    #   1. NRF[http://::1:7777/nnrf-nfm/v1/nf-instances]
+    #      S-NSSAI[SST:1]
+    #   2. NRF[http://127.0.0.19:7777/nnrf-nfm/v1/nf-instances]
+    #      NSSAI[SST:1, SD:000080]
+    #   3. NRF[http://127.0.0.10:7777/nnrf-nfm/v1/nf-instances]
+    #      NSSAI[SST:1, SD:009000]
+    #
+    #  sbi:
+    #    client:
+    #      nsi:
+    #        - uri: http://[::1]:7777
+    #          s_nssai:
+    #            sst: 1
+    #        - uri: http://127.0.0.19:7777
+    #          s_nssai:
+    #            sst: 1
+    #            sd: 000080
+    #        - uri: http://127.0.0.10:7777
+    #          s_nssai:
+    #            sst: 1
+    #            sd: 009000
+    #
+    #  o Direct communication with NRF interaction
+    #  sbi:
+    #    client:
+    #      nrf:
+    #        - uri: http://127.0.0.10:7777
+    #
+    #  o Indirect communication with delegated discovery
+    #  sbi:
+    #    client:
+    #      scp:
+    #        - uri: http://127.0.0.200:7777
+    #
+    #  o Indirect communication without delegated discovery
+    #  sbi:
+    #    client:
+    #      nrf:
+    #        - uri: http://127.0.0.10:7777
+    #      scp:
+    #        - uri: http://127.0.0.200:7777
+    #  discovery:
+    #    delegated: no
+    #
+    ################################################################################
+    # HTTPS scheme with TLS
+    ################################################################################
+    #  o Set as default if not individually set
+    #  default:
+    #    tls:
+    #      server:
+    #        scheme: https
+    #        private_key: /etc/open5gs/tls/nssf.key
+    #        cert: /etc/open5gs/tls/nssf.crt
+    #      client:
+    #        scheme: https
+    #        cacert: /etc/open5gs/tls/ca.crt
+    #  sbi:
+    #    server:
+    #      - address: nssf.localdomain
+    #    client:
+    #      nrf:
+    #        - uri: https://nrf.localdomain
+    #      nsi:
+    #        - uri: https://nrf.localdomain
+    #          s_nssai:
+    #            sst: 1
+    #
+    #  o Add client TLS verification
+    #  default:
+    #    tls:
+    #      server:
+    #        scheme: https
+    #        private_key: /etc/open5gs/tls/nssf.key
+    #        cert: /etc/open5gs/tls/nssf.crt
+    #        verify_client: true
+    #        verify_client_cacert: /etc/open5gs/tls/ca.crt
+    #      client:
+    #        scheme: https
+    #        cacert: /etc/open5gs/tls/ca.crt
+    #        client_private_key: /etc/open5gs/tls/nssf.key
+    #        client_cert: /etc/open5gs/tls/nssf.crt
+    #  sbi:
+    #    server:
+    #      - address: nssf.localdomain
+    #    client:
+    #      nrf:
+    #        - uri: https://nrf.localdomain
+    #      nsi:
+    #        - uri: https://nrf.localdomain
+    #          s_nssai:
+    #            sst: 1
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-nssf-svc
+spec:
+  selector:
+    app: open5gs-nssf
+  clusterIP: None
+  ports:
+    - name: sbi
+      protocol: TCP
+      port: 80  # 7777
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open5gs-nssf-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-nssf
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-nssf
+    spec:
+      containers:
+        - name: open5gs-nssf-container
+          image: free5gmano/open5gs:v2.7.2
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          command: ["/bin/sh"]
+          args: ["-c", "sleep 5 && /open5gs-entrypoint.sh && ./install/bin/open5gs-nssfd"]
+          ports:
+            - containerPort: 80  # 7777
+              name: sbi
+              protocol: TCP
+          volumeMounts:
+            - name: open5gs-nssfcfg
+              mountPath: /open5gs/install/etc/open5gs/nssf.yaml
+              subPath: nssf.yaml
+      volumes:
+        - name: open5gs-nssfcfg
+          configMap:
+            name: open5gs-nssf-configmap
+            items:
+              - key: nssf.yaml
+                path: nssf.yaml

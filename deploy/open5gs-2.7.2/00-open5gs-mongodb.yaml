@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-mongodb-svc
+spec:
+  selector:
+    app: open5gs-mongodb
+  clusterIP: None
+  ports:
+    - port: 27017
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open5gs-mongodb
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-mongodb
+  template:
+    metadata:
+      labels:
+        app: open5gs-mongodb
+    spec:
+      containers:
+        - image: mongodb/mongodb-community-server:7.0.16-ubuntu2204
+          imagePullPolicy: IfNotPresent
+          name: open5gs-mongodb
+          ports:
+            - containerPort: 27017
+              name: mongodb
+          volumeMounts:
+            - name: mongodb-persistent-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongodb-persistent-storage
+          persistentVolumeClaim:
+            claimName: mongodb-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 2Gi
+# ---
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: mongodb-pv-claim
+# spec:
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 2Gi
+# ---
+# kind: PersistentVolume
+# apiVersion: v1
+# metadata:
+#   name: mongodb-pv-volume
+#   labels:
+#     type: local
+# spec:
+#   capacity:
+#     storage: 2Gi
+#   accessModes:
+#     - ReadWriteOnce
+#   hostPath:
+#     path: "/mnt/mongo/"
