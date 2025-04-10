@@ -1,0 +1,160 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open5gs-ausf-configmap
+data:
+  ausf.yaml: |
+    logger:
+      file:
+        path: /open5gs/install/var/log/open5gs/ausf.log
+    #  level: info   # fatal|error|warn|info(default)|debug|trace
+
+    global:
+      max:
+        ue: 1024  # The number of UE can be increased depending on memory size.
+    #    peer: 64
+
+    ausf:
+      sbi:
+        server:
+          - address: open5gs-ausf-svc  # 127.0.0.11
+            port: 80  # 7777
+        client:
+          nrf:
+            - uri: http://open5gs-nrf-svc  # http://127.0.0.10:7777
+          # scp:
+          #   - uri: http://127.0.0.200:7777
+
+    ################################################################################
+    # SBI Server
+    ################################################################################
+    #  o Override SBI address to be advertised to NRF
+    #  sbi:
+    #    server:
+    #      - dev: eth0
+    #        advertise: open5gs-ausf.svc.local
+    #
+    #  sbi:
+    #    server:
+    #      - address: localhost
+    #        advertise:
+    #          - 127.0.0.99
+    #          - ::1
+    #
+    ################################################################################
+    # SBI Client
+    ################################################################################
+    #  o Direct communication with NRF interaction
+    #  sbi:
+    #    client:
+    #      nrf:
+    #        - uri: http://127.0.0.10:7777
+    #
+    #  o Indirect communication with delegated discovery
+    #  sbi:
+    #    client:
+    #      scp:
+    #        - uri: http://127.0.0.200:7777
+    #
+    #  o Indirect communication without delegated discovery
+    #  sbi:
+    #    client:
+    #      nrf:
+    #        - uri: http://127.0.0.10:7777
+    #      scp:
+    #        - uri: http://127.0.0.200:7777
+    #  discovery:
+    #    delegated: no
+    #
+    ################################################################################
+    # HTTPS scheme with TLS
+    ################################################################################
+    #  o Set as default if not individually set
+    #  default:
+    #    tls:
+    #      server:
+    #        scheme: https
+    #        private_key: /etc/open5gs/tls/ausf.key
+    #        cert: /etc/open5gs/tls/ausf.crt
+    #      client:
+    #        scheme: https
+    #        cacert: /etc/open5gs/tls/ca.crt
+    #  sbi:
+    #    server:
+    #      - address: ausf.localdomain
+    #    client:
+    #      nrf:
+    #        - uri: https://nrf.localdomain
+    #
+    #  o Add client TLS verification
+    #  default:
+    #    tls:
+    #      server:
+    #        scheme: https
+    #        private_key: /etc/open5gs/tls/ausf.key
+    #        cert: /etc/open5gs/tls/ausf.crt
+    #        verify_client: true
+    #        verify_client_cacert: /etc/open5gs/tls/ca.crt
+    #      client:
+    #        scheme: https
+    #        cacert: /etc/open5gs/tls/ca.crt
+    #        client_private_key: /etc/open5gs/tls/ausf.key
+    #        client_cert: /etc/open5gs/tls/ausf.crt
+    #  sbi:
+    #    server:
+    #      - address: ausf.localdomain
+    #    client:
+    #      nrf:
+    #        - uri: https://nrf.localdomain
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-ausf-svc
+spec:
+  selector:
+    app: open5gs-ausf
+  clusterIP: None
+  ports:
+    - name: sbi
+      protocol: TCP
+      port: 80  # 7777
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open5gs-ausf-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-ausf
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-ausf
+    spec:
+      containers:
+        - name: open5gs-ausf-container
+          image: free5gmano/open5gs:v2.7.2
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          command: ["/bin/sh"]
+          args: ["-c", "sleep 5 && /open5gs-entrypoint.sh && ./install/bin/open5gs-ausfd"]
+          ports:
+            - containerPort: 80  # 7777
+              name: sbi
+              protocol: TCP
+          volumeMounts:
+            - name: open5gs-ausfcfg
+              mountPath: /open5gs/install/etc/open5gs/ausf.yaml
+              subPath: ausf.yaml
+      volumes:
+        - name: open5gs-ausfcfg
+          configMap:
+            name: open5gs-ausf-configmap
+            items:
+              - key: ausf.yaml
+                path: ausf.yaml

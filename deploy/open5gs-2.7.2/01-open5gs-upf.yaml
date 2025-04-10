@@ -1,0 +1,152 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: open5gs-upf-configmap
+data:
+  upf.yaml: |
+    logger:
+      file:
+        path: /open5gs/install/var/log/open5gs/upf.log
+    #  level: info   # fatal|error|warn|info(default)|debug|trace
+
+    global:
+      max:
+        ue: 1024  # The number of UE can be increased depending on memory size.
+    #    peer: 64
+
+    upf:
+      pfcp:
+        server:
+          - address: open5gs-upf-svc  # 127.0.0.7
+        client:
+          # smf:     #  UPF PFCP Client try to associate SMF PFCP Server
+          #   - address: 127.0.0.4
+      gtpu:
+        server:
+          - address: open5gs-upf-svc  # 127.0.0.7
+      session:
+        - subnet: 10.45.0.0/16
+          gateway: 10.45.0.1
+        - subnet: 2001:db8:cafe::/48
+          gateway: 2001:db8:cafe::1
+      metrics:
+        server:
+          - address: open5gs-upf-svc  # 127.0.0.7
+            port: 9090
+
+    ################################################################################
+    # PFCP Server
+    ################################################################################
+    # o Override PFCP address to be advertised to SMF in PFCP association
+    #  pfcp:
+    #    server:
+    #      - dev: eth0
+    #        advertise: open5gs-upf.svc.local
+    #
+    ################################################################################
+    # GTP-U Server
+    ################################################################################
+    #  o Override SGW-U GTP-U address to be advertised inside S1AP messages 
+    #  gtpu:
+    #    server:
+    #      - dev: ens3
+    #        advertise: upf1.5gc.mnc001.mcc001.3gppnetwork.org
+    #
+    #  o User Plane IP Resource information
+    #  gtpu:
+    #    server:
+    #      - address:
+    #        - 127.0.0.7
+    #        - ::1
+    #        teid_range_indication: 4
+    #        teid_range: 10
+    #        network_instance: internet
+    #        source_interface: 0
+    #      - address: 127.0.10.4
+    #        teid_range_indication: 4
+    #        teid_range: 5
+    #        network_instance: ims
+    #        source_interface: 1
+    #
+    ################################################################################
+    # 3GPP Specification
+    ################################################################################
+    #
+    #  o Specific DNN/APN(e.g 'ims') uses 10.46.0.1/16, 2001:db8:babe::1/48
+    #  $ sudo ip addr add 10.45.0.1/16 dev ogstun
+    #  $ sudo ip addr add 2001:db8:cafe::1/48 dev ogstun2
+    #  $ sudo ip addr add 10.46.0.1/16 dev ogstun3
+    #  $ sudo ip addr add 2001:db8:babe::1/48 dev ogstun3
+    #
+    #  session:
+    #    - subnet: 10.45.0.0/16
+    #      gateway: 10.45.0.1
+    #      dnn: internet
+    #    - subnet: 2001:db8:cafe::/48
+    #      dnn: internet
+    #      dev: ogstun2
+    #    - subnet: 10.46.0.0/16
+    #      gateway: 10.46.0.1
+    #      dnn: ims
+    #      dev: ogstun3
+    #    - subnet: 2001:db8:babe::/48
+    #      dnn: ims
+    #      dev: ogstun3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-upf-svc
+spec:
+  selector:
+    app: open5gs-upf
+  clusterIP: None
+  ports:
+    - name: pfcp
+      protocol: UDP
+      port: 8805
+    - name: gtp
+      protocol: UDP
+      port: 2152
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open5gs-upf-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-upf
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-upf
+    spec:
+      containers:
+        - name: open5gs-upf-container
+          image: free5gmano/open5gs:v2.7.2
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          command: ["/bin/sh"]
+          args: ["-c", "sleep 5 && /open5gs-entrypoint.sh && ./install/bin/open5gs-upfd"]
+          ports:
+            - containerPort: 2152
+              name: n3
+              protocol: UDP
+            - containerPort: 8805
+              name: n4
+              protocol: UDP
+          volumeMounts:
+            - name: open5gs-upfcfg
+              mountPath: /open5gs/install/etc/open5gs/upf.yaml
+              subPath: upf.yaml
+      volumes:
+        - name: open5gs-upfcfg
+          configMap:
+            name: open5gs-upf-configmap
+            items:
+              - key: upf.yaml
+                path: upf.yaml
