@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: open5gs-webui-svc
+spec:
+  selector:
+    app: open5gs-webui
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 9999
+      nodePort: 30000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: open5gs-webui-deployment
+spec:
+  selector:
+    matchLabels:
+      app: open5gs-webui
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: open5gs-webui
+    spec:
+      containers:
+        - name: open5gs-webui-container
+          image: free5gmano/open5gs-webui:v2.7.2
+          imagePullPolicy: IfNotPresent
+          # securityContext:
+          #   privileged: true
+          command: ["/bin/sh"]
+          args: ["-c", "sleep 5 && /open5gs_webui-entrypoint.sh && npm run start"]
+          env:
+            - name: DB_URI
+              value: mongodb://open5gs-mongodb-svc/open5gs
+          ports:
+            - containerPort: 9999
+              name: web
+              protocol: TCP
